@@ -52,6 +52,32 @@ class OntologyService:
         
         # Propiedades específicas por tipo
         if entity_type == "artist":
+            # Propiedades nuevas
+            nationality = self.graph.value(uri, self.MUSIC.nationality)
+            if nationality:
+                entity["nationality"] = str(nationality)
+            
+            birthYear = self.graph.value(uri, self.MUSIC.birthYear)
+            if birthYear:
+                entity["birthYear"] = int(birthYear)
+            
+            activeYears = self.graph.value(uri, self.MUSIC.activeYears)
+            if activeYears:
+                entity["activeYears"] = str(activeYears)
+            
+            trajectory = self.graph.value(uri, self.MUSIC.trajectory)
+            if trajectory:
+                entity["trajectory"] = str(trajectory)
+            
+            discography = self.graph.value(uri, self.MUSIC.discography)
+            if discography:
+                entity["discography"] = str(discography)
+            
+            awards = self.graph.value(uri, self.MUSIC.awards)
+            if awards:
+                entity["awards"] = str(awards)
+            
+            # Género
             genre = self.graph.value(uri, self.MUSIC.performsGenre)
             if genre:
                 genre_name = self.graph.value(genre, self.MUSIC.name)
@@ -77,6 +103,23 @@ class OntologyService:
             if artist:
                 artist_name = self.graph.value(artist, self.MUSIC.name)
                 entity["artist"] = str(artist_name) if artist_name else None
+            
+            # Propiedades nuevas de canción
+            language = self.graph.value(uri, self.MUSIC.language)
+            if language:
+                entity["language"] = str(language)
+            
+            composers = self.graph.value(uri, self.MUSIC.composers)
+            if composers:
+                entity["composers"] = str(composers)
+            
+            lyrics = self.graph.value(uri, self.MUSIC.lyrics)
+            if lyrics:
+                entity["lyrics"] = str(lyrics)
+            
+            lyricist = self.graph.value(uri, self.MUSIC.lyricist)
+            if lyricist:
+                entity["lyricist"] = str(lyricist)
             
             # Instrumentos
             instruments = []

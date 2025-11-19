@@ -1,8 +1,8 @@
 # Backend - Buscador Semántico de Música API
 
-API REST basada en FastAPI que proporciona acceso semántico a una ontología RDF/OWL de música con 336 triplas.
+API REST basada en FastAPI que proporciona acceso semántico a una ontología RDF/OWL de música con 618 triplas.
 
-**Versión**: 2.0 | **Status**: ✅ Operacional | **Endpoints**: 22
+**Versión**: 3.0 | **Status**: ✅ Operacional | **Endpoints**: 22
 
 ---
 
@@ -384,29 +384,31 @@ router.get("/health")                   # GET /health (En app/__init__.py)
 
 ### Estadísticas
 
-- **Triplas RDF**: 336 (v2.0)
+- **Triplas RDF**: 618 (v3.0)
 - **Clases**: 5 (Artist, Album, Song, Instrument, Genre)
-- **Propiedades**: 11 (hasAlbum, containsSong, usesInstrument, etc.)
-- **Instancias**: 53
+- **Propiedades**: 19 (hasAlbum, containsSong, usesInstrument, nationality, composers, etc.)
+- **Instancias**: 73 (12 artistas, 16 álbumes, 20 canciones, 10 instrumentos, 8 géneros)
 
 ### Contenido
 
 ```
-Artistas (10)
+Artistas (12)
 - John Lennon, Paul McCartney, Miles Davis, Taylor Swift
 - David Bowie, Aretha Franklin, Bob Dylan, Björk
-- Kendrick Lamar, Pink Floyd
+- Kendrick Lamar, Pink Floyd, Adele, Beyoncé
 
-Álbumes (11)
+Álbumes (16)
 - Abbey Road, A Kind of Blue, Fearless, Red
 - Hunky Dory, Ziggy Stardust, Young Gifted and Black
 - Blonde on Blonde, Post, Good Kid m.A.A.d City
-- The Dark Side of the Moon
+- The Dark Side of the Moon, Imagine, Space Oddity, 21
+- Dangerously in Love, Highway 61 Revisited
 
-Canciones (16)
+Canciones (20)
 - Come Together, Something, The End, So What, Blue in Green
 - Love Story, You Belong With Me, All Too Well, We Are Never Ever
 - Changes, Respect, Rainy Day Women, Time, Money
+- Imagine, Space Oddity, Blinding Lights, Halo, Like a Rolling Stone
 
 Instrumentos (10)
 - Guitar, Bass, Piano, Drums, Saxophone
@@ -416,6 +418,22 @@ Géneros (8)
 - Rock, Jazz, Pop, Classical, Electronic
 - Hip-Hop, Blues, Folk
 ```
+
+### Nuevas Propiedades (v3.0)
+
+**Artistas**:
+- `nationality` - Nacionalidad del artista
+- `birthYear` - Año de nacimiento
+- `activeYears` - Período de actividad
+- `trajectory` - Descripción de trayectoria profesional
+- `discography` - Listado de álbumes principales
+- `awards` - Premios y reconocimientos
+
+**Canciones**:
+- `language` - Idioma de la canción
+- `composers` - Compositores/Autores
+- `lyricist` - Letrista
+- `lyrics` - Fragmento o letra completa
 
 ---
 

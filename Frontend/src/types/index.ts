@@ -5,6 +5,12 @@ export interface Artist {
   name: string;
   description?: string;
   genre?: string;
+  nationality?: string;
+  birthYear?: number;
+  activeYears?: string;
+  trajectory?: string;
+  discography?: string;
+  awards?: string;
 }
 
 export interface Album {
@@ -24,6 +30,11 @@ export interface Song {
   releaseYear?: number;
   artist?: string;
   instruments?: Instrument[];
+  language?: string;
+  composers?: string;
+  lyrics?: string;
+  lyricist?: string;
+  collaborators?: Artist[];
 }
 
 export interface Instrument {

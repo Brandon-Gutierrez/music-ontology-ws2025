@@ -43,6 +43,44 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
   const renderArtistContent = (artist: Artist) => (
     <>
       <p className={styles['result-card-description']}>{artist.description}</p>
+      <div className={styles['result-card-details']}>
+        {artist.nationality && (
+          <div className={styles['detail-row']}>
+            <span className={styles['detail-label']}>Nacionalidad</span>
+            <span className={styles['detail-value']}>{artist.nationality}</span>
+          </div>
+        )}
+        {artist.birthYear && (
+          <div className={styles['detail-row']}>
+            <span className={styles['detail-label']}>Nacimiento</span>
+            <span className={styles['detail-value']}>{artist.birthYear}</span>
+          </div>
+        )}
+        {artist.activeYears && (
+          <div className={styles['detail-row']}>
+            <span className={styles['detail-label']}>Años activo</span>
+            <span className={styles['detail-value']}>{artist.activeYears}</span>
+          </div>
+        )}
+      </div>
+      {artist.trajectory && (
+        <div className={styles['tags-container']}>
+          <div className={styles['tags-title']}>Trayectoria</div>
+          <p className={styles['text-content']}>{artist.trajectory}</p>
+        </div>
+      )}
+      {artist.discography && (
+        <div className={styles['tags-container']}>
+          <div className={styles['tags-title']}>Discografía</div>
+          <p className={styles['text-content']}>{artist.discography}</p>
+        </div>
+      )}
+      {artist.awards && (
+        <div className={styles['tags-container']}>
+          <div className={styles['tags-title']}>Premios</div>
+          <p className={styles['text-content']}>{artist.awards}</p>
+        </div>
+      )}
       {artist.genre && (
         <div className={styles['tags-container']}>
           <div className={styles['tags-title']}>Género</div>
@@ -92,7 +130,31 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
             <span className={styles['detail-value']}>{song.releaseYear}</span>
           </div>
         )}
+        {song.language && (
+          <div className={styles['detail-row']}>
+            <span className={styles['detail-label']}>Idioma</span>
+            <span className={styles['detail-value']}>{song.language}</span>
+          </div>
+        )}
       </div>
+      {song.composers && (
+        <div className={styles['tags-container']}>
+          <div className={styles['tags-title']}>Compositores</div>
+          <p className={styles['text-content']}>{song.composers}</p>
+        </div>
+      )}
+      {song.lyricist && (
+        <div className={styles['tags-container']}>
+          <div className={styles['tags-title']}>Letrista</div>
+          <p className={styles['text-content']}>{song.lyricist}</p>
+        </div>
+      )}
+      {song.lyrics && (
+        <div className={styles['tags-container']}>
+          <div className={styles['tags-title']}>Letra</div>
+          <p className={styles['lyrics-content']}>{song.lyrics}</p>
+        </div>
+      )}
       {song.instruments && song.instruments.length > 0 && (
         <div className={styles['tags-container']}>
           <div className={styles['tags-title']}>Instrumentos</div>
