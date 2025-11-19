@@ -1,19 +1,410 @@
-# React + TypeScript + Vite
+# Frontend - Buscador Semántico de Música
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interfaz web moderna construida con React y TypeScript para realizar búsquedas semánticas en la ontología de música.
 
-Currently, two official plugins are available:
+**Versión**: 2.0 | **Status**: ✅ Operacional | **Dark Mode**: ✅ Activo
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## 📋 Tabla de Contenidos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. [Inicio Rápido](#inicio-rápido)
+2. [Instalación](#instalación)
+3. [Configuración](#configuración)
+4. [Uso](#uso)
+5. [Estructura](#estructura)
+6. [Componentes](#componentes)
+7. [Servicios](#servicios)
+8. [Estilos](#estilos)
+9. [Troubleshooting](#troubleshooting)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 🚀 Inicio Rápido
+
+### Requisitos Previos
+
+- Node.js 20.19+ o 22.0+ LTS
+- npm 10.9.0+
+- Backend corriendo en `http://127.0.0.1:8000`
+
+### Instalación en 2 Pasos
+
+```bash
+# 1. Instalar dependencias
+npm install
+
+# 2. Iniciar servidor de desarrollo
+npm run dev
+```
+
+✅ La aplicación estará disponible en: `http://localhost:5173`
+
+---
+
+## 📦 Instalación Detallada
+
+### Paso 1: Verificar Requisitos
+
+```bash
+node --version      # Debe ser 20.19+ o 22.0+
+npm --version       # Debe ser 10+
+```
+
+### Paso 2: Instalar Dependencias
+
+```bash
+# Instalación normal
+npm install
+
+# Si tienes problemas, intenta:
+npm install --legacy-peer-deps
+
+# Para actualizar a versiones más nuevas:
+npm update
+```
+
+### Paso 3: Configuración de Entorno
+
+Crear archivo `.env.local` en la raíz de Frontend (opcional):
+
+```env
+# URL del backend API
+VITE_API_URL=http://localhost:8000
+
+# Puerto del frontend (por defecto 5173)
+VITE_PORT=5173
+
+# Modo de desarrollo
+VITE_NODE_ENV=development
+```
+
+---
+
+## 🎮 Uso
+
+### Desarrollo Local
+
+```bash
+# Iniciar servidor con hot reload
+npm run dev
+```
+
+Abre `http://localhost:5173` en tu navegador.
+
+### Build para Producción
+
+```bash
+# Compilar archivos optimizados
+npm run build
+
+# Previewizar la compilación
+npm run preview
+```
+
+### Linting
+
+```bash
+# Verificar código
+npm run lint
+
+# Arreglar problemas automáticamente
+npm run lint --fix
+```
+
+---
+
+## 🏗️ Estructura del Proyecto
+
+```
+Frontend/src/
+├── components/
+│   ├── Header.tsx           # Encabezado (logo, título, estado API)
+│   ├── SearchBar.tsx        # Búsqueda + filtros con iconos
+│   ├── ResultCard.tsx       # Tarjeta individual de resultado
+│   └── ResultList.tsx       # Grid container de resultados
+│
+├── services/
+│   └── api.ts              # Cliente HTTP centralizado (20+ métodos)
+│
+├── styles/
+│   ├── Header.module.css   # Estilos encapsulados Header
+│   ├── SearchBar.module.css # Estilos SearchBar con dark mode
+│   └── ResultCard.module.css # Estilos ResultCard + grid
+│
+├── types/
+│   └── index.ts            # Definiciones TypeScript
+│
+├── App.tsx                 # Componente principal (lógica de búsqueda)
+├── App.css                 # Estilos globales + variables CSS
+├── main.tsx                # Entry point React
+├── index.css               # Base styles
+│
+├── assets/                 # Recursos estáticos (si existen)
+│
+├── vite.config.ts          # Configuración Vite
+├── tsconfig.json           # Configuración TypeScript
+├── package.json            # Dependencias
+├── .env.local              # Variables de entorno (no versionar)
+├── .env.example            # Template de .env.local
+└── README.md               # Este archivo
+```
+
+---
+
+## 🧩 Componentes
+
+### Header
+
+**Ubicación**: `src/components/Header.tsx`
+
+Muestra:
+- 🎵 Logo del buscador
+- Título y descripción
+- Estado de conexión con API (✓ conectado o ✗ desconectado)
+
+**Props**:
+```typescript
+interface HeaderProps {
+  apiStatus?: boolean;  // true si conectado, false si no
+}
+```
+
+### SearchBar
+
+**Ubicación**: `src/components/SearchBar.tsx`
+
+Proporciona:
+- Input para ingreso de búsqueda
+- 6 botones de filtro con iconos:
+  - 🔍 Todos
+  - 👥 Artistas
+  - 💿 Álbumes
+  - 🎵 Canciones
+  - ⚡ Instrumentos
+  - 🏷️ Géneros
+- Estados de carga y habilitación
+
+**Props**:
+```typescript
+interface SearchBarProps {
+  onSearch: (query: string, filter: string) => void;
+  isLoading: boolean;
+}
+```
+
+### ResultCard
+
+**Ubicación**: `src/components/ResultCard.tsx`
+
+Renderiza tarjeta individual con:
+- Icono del tipo
+- Nombre de la entidad
+- Descripción
+- Información específica según tipo:
+  - **Artista**: Género que interpreta
+  - **Álbum**: Año, género
+  - **Canción**: Duración, año, instrumentos
+  - **Instrumento**: Tipo
+  - **Género**: Descripción
+
+**Props**:
+```typescript
+interface ResultCardProps {
+  result: SearchResult;
+}
+```
+
+### ResultList
+
+**Ubicación**: `src/components/ResultList.tsx`
+
+Contenedor grid que maneja:
+- Estado de carga
+- Lista vacía / sin resultados
+- Errores
+- Grid responsive
+
+**Props**:
+```typescript
+interface ResultListProps {
+  results: SearchResult[];
+  isLoading: boolean;
+  error?: string;
+}
+```
+
+---
+
+## 🔌 Servicios
+
+### API Service
+
+**Ubicación**: `src/services/api.ts`
+
+Cliente HTTP centralizado con método base y 20+ métodos específicos:
+
+#### Métodos Principales
+
+```typescript
+// Verificar conexión
+await api.healthCheck()          // GET /health
+
+// Búsqueda general
+await api.search(query)          // GET /api/search?q=...
+
+// Obtener todos
+await api.getArtists()           // GET /api/artists
+await api.getAlbums()            // GET /api/albums
+await api.getSongs()             // GET /api/songs
+await api.getInstruments()       // GET /api/instruments
+await api.getGenres()            // GET /api/genres
+
+// Búsqueda específica
+await api.searchArtists(query)   // GET /api/search/artists?q=...
+await api.searchAlbums(query)    // GET /api/search/albums?q=...
+await api.searchSongs(query)     // GET /api/search/songs?q=...
+await api.searchInstruments(query) // GET /api/search/instruments?q=...
+await api.searchGenres(query)    // GET /api/search/genres?q=...
+
+// Relaciones
+await api.getArtistAlbums(uri)   // GET /api/artist/{uri}/albums
+await api.getAlbumSongs(uri)     // GET /api/album/{uri}/songs
+await api.getSongInstruments(uri) // GET /api/song/{uri}/instruments
+
+// Estadísticas
+await api.getStats()             // GET /api/stats
+```
+
+---
+
+## 🎨 Estilos
+
+### Sistema de Variables CSS
+
+**Archivo**: `src/App.css`
+
+Variables globales para dark mode + tema verde:
+
+```css
+:root {
+  --bg-primary: #0f172a;           /* Fondo principal oscuro */
+  --bg-secondary: #1e293b;         /* Fondo secundario */
+  --bg-tertiary: #334155;          /* Fondo terciario */
+  --color-green-primary: #10b981;  /* Verde esmeralda */
+  --color-green-bright: #22c55e;   /* Verde lima */
+  --color-green-dark: #16a34a;     /* Verde bosque */
+  --text-primary: #f1f5f9;         /* Texto principal */
+  --text-secondary: #cbd5e1;       /* Texto secundario */
+  --border-color: #334155;         /* Bordes */
+}
+```
+
+### CSS Modules
+
+Cada componente tiene su módulo CSS encapsulado:
+
+- **Header.module.css** - 40 líneas
+- **SearchBar.module.css** - 100+ líneas
+- **ResultCard.module.css** - 150+ líneas
+
+### Paleta de Colores
+
+| Uso | Color | Código |
+|-----|-------|--------|
+| Fondo Principal | Azul Oscuro | #0F172A |
+| Verde Primario | Esmeralda | #10B981 |
+| Verde Acento | Lima | #22C55E |
+| Texto Principal | Gris Claro | #F1F5F9 |
+| Bordes | Gris Oscuro | #334155 |
+| Error | Rojo | #EF4444 |
+
+---
+
+## 📝 Scripts Disponibles
+
+```bash
+npm run dev              # Inicia servidor de desarrollo con HMR
+npm run build            # Compila para producción
+npm run preview          # Previewiza build local
+npm run lint             # Valida código con ESLint
+npm run lint --fix       # Arregla problemas automáticamente
+npm run type-check       # Verifica tipos TypeScript
+npm run clean            # Limpia cache de Vite
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### "Port 5173 already in use"
+
+```bash
+# Usar puerto diferente
+npm run dev -- --port 3000
+```
+
+### "Cannot find module" error
+
+```bash
+# Limpiar e reinstalar
+rm -rf node_modules package-lock.json
+npm install
+```
+
+### "CORS error" o "API not responding"
+
+1. Verificar que backend está corriendo: `http://127.0.0.1:8000/health`
+2. Revisar `.env.local` - URL debe ser exacta
+3. Reiniciar ambos servidores
+
+### Cambios no se reflejan
+
+```bash
+# Limpiar cache de Vite
+npm run clean
+npm run dev
+```
+
+### Build falla
+
+```bash
+# Verificar tipos
+npm run type-check
+
+# Limpiar e reconstruir
+rm -rf dist
+npm run build
+```
+
+---
+
+## 🚀 Optimizaciones
+
+- ✅ Dark mode completo
+- ✅ Iconos profesionales (Lucide React)
+- ✅ Variables CSS para fácil mantenimiento
+- ✅ Estilos encapsulados con CSS Modules
+- ✅ Componentes funcionales con hooks
+- ✅ Tipado completo con TypeScript
+- ✅ Responsive design mobile-first
+- ✅ Hot reload en desarrollo
+
+---
+
+## 📚 Recursos
+
+### Documentación
+- [React 19 Docs](https://react.dev/)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
+- [Vite Documentation](https://vitejs.dev/)
+- [Lucide React Icons](https://lucide.dev/)
+
+---
+
+**Última actualización**: 19 de noviembre de 2025  
+**Versión**: 2.0  
+**Status**: ✅ Funcional y optimizado
 
 # Frontend - Buscador Semántico de Música
 

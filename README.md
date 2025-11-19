@@ -1,33 +1,148 @@
 # 🎵 Buscador Semántico de Música - Ontología RDF
 
-Un buscador inteligente basado en ontologías RDF/OWL que permite explorar información sobre artistas, álbumes, canciones, instrumentos y géneros musicales.
+Un buscador inteligente basado en ontologías RDF/OWL que permite explorar información sobre artistas, álbumes, canciones, instrumentos y géneros musicales con una interfaz moderna con modo oscuro y tema verde.
 
-## 🚀 Inicio Rápido
+**Versión**: 2.0 | **Estado**: ✅ Operacional | **Ontología**: 336 triplas RDF
 
-### Requisitos
-- Python 3.9+
-- Node.js 20.19+ o 22.12+
-- npm
+---
 
-### Paso 1: Backend (FastAPI)
+## 📋 Tabla de Contenidos
+
+1. [Requisitos](#requisitos)
+2. [Instalación Rápida](#instalación-rápida)
+3. [Configuración Detallada](#configuración-detallada)
+4. [Características](#características)
+5. [Datos Actuales](#datos-actuales)
+6. [API Endpoints](#api-endpoints)
+7. [Uso](#uso)
+8. [Estructura del Proyecto](#estructura-del-proyecto)
+9. [Troubleshooting](#troubleshooting)
+10. [Tecnologías](#tecnologías)
+
+---
+
+## 🔧 Requisitos
+
+### Sistema Operativo
+- Windows, macOS o Linux
+
+### Software Requerido
+- **Python**: 3.9 o superior
+  - Verificar: `python --version`
+  - Descargar: https://www.python.org/downloads/
+  
+- **Node.js**: 20.19+ o 22.0+ (LTS recomendado)
+  - Verificar: `node --version` y `npm --version`
+  - Descargar: https://nodejs.org/
+  
+- **Git**: (opcional pero recomendado)
+  - Descargar: https://git-scm.com/
+
+---
+
+## 🚀 Instalación Rápida
+
+### Opción 1: Con Git (Recomendado)
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/Brandon-Gutierrez/music-ontology-ws2025.git
+cd music-ontology-ws2025
+
+# Instalar dependencias Backend
+cd Backend
+pip install -r requirements.txt
+
+# Instalar dependencias Frontend
+cd ../Frontend
+npm install
+```
+
+### Opción 2: Sin Git
+
+1. Descargar proyecto como ZIP desde GitHub
+2. Extraer el archivo
+3. Seguir pasos de instalación de dependencias arriba
+
+### Paso 1: Iniciar Backend
 
 ```bash
 cd Backend
-python run_server.py
+python -m uvicorn app:app --reload --host 127.0.0.1 --port 8000
 ```
 
-El servidor estará disponible en: `http://127.0.0.1:8000`
+**Esperado ver**:
+```
+INFO:     Uvicorn running on http://127.0.0.1:8000
+INFO:     ✓ Ontología cargada: 336 triplas
+```
 
-### Paso 2: Frontend (React)
+✅ Backend listo en: `http://127.0.0.1:8000`
 
-En otra terminal:
+### Paso 2: Iniciar Frontend (Nueva Terminal)
 
 ```bash
 cd Frontend
 npm run dev
 ```
 
-El frontend estará disponible en: `http://localhost:5173`
+**Esperado ver**:
+```
+➜  Local:   http://localhost:5173/
+```
+
+✅ Frontend listo en: `http://localhost:5173`
+
+### Paso 3: ¡Usa la Aplicación!
+
+1. Abre `http://localhost:5173` en tu navegador
+2. Prueba buscando: "john", "abbey", "guitar", etc.
+3. Usa los filtros para buscar por tipo
+
+---
+
+## ⚙️ Configuración Detallada
+
+### Variables de Entorno (Opcional)
+
+Crea archivo `Frontend/.env.local` (si no existe):
+
+```env
+# URL del backend API
+VITE_API_URL=http://localhost:8000
+
+# Puerto frontend (por defecto 5173)
+VITE_PORT=5173
+```
+
+### Solución de Problemas Comunes
+
+#### ❌ Error: "pip: command not found"
+```bash
+# Windows
+python -m pip install -r Backend/requirements.txt
+
+# macOS/Linux
+pip3 install -r Backend/requirements.txt
+```
+
+#### ❌ Error: "Port 8000 already in use"
+```bash
+# Usar puerto diferente
+python -m uvicorn app:app --port 8001 --reload
+```
+
+#### ❌ Error: "CORS error" o "API connection failed"
+- Verificar que el backend esté corriendo: `http://127.0.0.1:8000/health`
+- Verificar que el frontend esté en `http://localhost:5173`
+- No cambiar el puerto del backend sin actualizar `.env.local`
+
+#### ❌ Error: "Module not found" en Python
+```bash
+cd Backend
+pip install --upgrade pip
+pip install -r requirements.txt
+```
 
 ---
 
@@ -37,110 +152,288 @@ El frontend estará disponible en: `http://localhost:5173`
 music-ontology-ws2025/
 ├── Backend/
 │   ├── app/
-│   │   ├── __init__.py          # Configuración FastAPI
-│   │   ├── main.py              # Entry point
-│   │   ├── ontology.py          # Servicio RDF/OWL
-│   │   ├── models.py            # Modelos Pydantic
-│   │   └── routes.py            # Endpoints API
+│   │   ├── __init__.py              # Inicialización FastAPI
+│   │   ├── main.py                  # Entry point
+│   │   ├── ontology.py              # Servicio de consulta RDF/OWL
+│   │   ├── models.py                # Modelos Pydantic para validación
+│   │   └── routes.py                # 22 Endpoints de API REST
 │   ├── data/
-│   │   └── music-ontology.owl   # Ontología RDF
-│   ├── requirements.txt         # Dependencias Python
-│   └── run_server.py            # Script para iniciar servidor
+│   │   └── music-ontology.owl       # Ontología RDF v2.0 (336 triplas)
+│   ├── requirements.txt             # Dependencias Python
+│   └── README.md                    # Documentación Backend
 │
 ├── Frontend/
 │   ├── src/
-│   │   ├── components/          # Componentes React
-│   │   ├── services/            # Cliente HTTP
-│   │   ├── styles/              # CSS Modules
-│   │   ├── types/               # TypeScript interfaces
-│   │   └── App.tsx              # Componente principal
-│   ├── .env.local               # Configuración
-│   ├── package.json             # Dependencias Node.js
-│   └── vite.config.ts           # Configuración Vite
+│   │   ├── components/              # 4 Componentes React
+│   │   │   ├── Header.tsx           # Encabezado con logo
+│   │   │   ├── SearchBar.tsx        # Barra + filtros con iconos
+│   │   │   ├── ResultCard.tsx       # Tarjeta de resultado
+│   │   │   └── ResultList.tsx       # Grid de resultados
+│   │   ├── services/
+│   │   │   └── api.ts               # Cliente HTTP (20+ métodos)
+│   │   ├── styles/                  # CSS Modules con dark mode
+│   │   ├── types/
+│   │   │   └── index.ts             # Tipos TypeScript
+│   │   ├── App.tsx                  # Componente principal
+│   │   ├── App.css                  # Estilos globales + variables CSS
+│   │   ├── main.tsx                 # Entry point React
+│   │   └── index.css                # Estilos base
+│   ├── .env.local                   # Configuración (crear si no existe)
+│   ├── package.json                 # Dependencias Node.js + scripts
+│   ├── vite.config.ts               # Configuración Vite
+│   ├── tsconfig.json                # Configuración TypeScript
+│   └── README.md                    # Documentación Frontend
 │
-├── QUICK_START.md               # Guía de inicio detallada
-├── LICENSE                      # Licencia
-└── README.md                    # Este archivo
+├── ENHANCEMENT_SUMMARY.md           # Cambios en v2.0
+├── LICENSE                          # Licencia MIT
+├── README.md                        # Este archivo
+└── .gitignore                       # Archivos ignorados en Git
 ```
 
 ---
 
-## 🔍 Características
+## ✨ Características
 
-✅ **Búsqueda Semántica**: Busca inteligentemente en toda la ontología  
-✅ **Filtros Especializados**: Busca por tipo (artistas, álbumes, canciones, etc.)  
-✅ **Interfaz Responsiva**: Funciona perfectamente en desktop y móvil  
-✅ **API REST Completa**: 22 endpoints para diferentes queries  
-✅ **Documentación Interactiva**: Swagger UI en `/docs`
+### 🎯 Búsqueda
+- ✅ **Búsqueda Semántica**: Busca inteligentemente en toda la ontología (336 triplas)
+- ✅ **Búsqueda Filtrada**: Por tipo de entidad (Artistas, Álbumes, Canciones, Instrumentos, Géneros)
+- ✅ **Resultados Enriquecidos**: Información detallada de cada entidad
+- ✅ **Indicador de Estado**: Muestra si el backend está conectado
+
+### 🎨 Interfaz
+- ✅ **Modo Oscuro**: Fondo oscuro con tema verde (#10B981 - #22C55E)
+- ✅ **Iconos Profesionales**: Lucide React en lugar de emojis
+- ✅ **Diseño Responsivo**: Perfecto en desktop, tablet y móvil
+- ✅ **Gradientes Modernos**: Elementos visuales atractivos
+- ✅ **Animaciones Suaves**: Transiciones y efectos hover
+
+### 🔌 API
+- ✅ **22 Endpoints REST**: Acceso completo a la ontología
+- ✅ **CORS Habilitado**: Funciona desde cualquier origen
+- ✅ **Documentación Interactiva**: Swagger UI en `/docs` y ReDoc en `/redoc`
+- ✅ **Health Check**: Endpoint para verificar estado
+
+### 📊 Ontología
+- ✅ **336 Triplas RDF**: Relaciones semánticas completas
+- ✅ **5 Clases**: Artist, Album, Song, Instrument, Genre
+- ✅ **11 Propiedades**: hasAlbum, containsSong, usesInstrument, etc.
+- ✅ **53 Instancias**: 10 artistas, 11 álbumes, 16 canciones, 10 instrumentos, 8 géneros
 
 ---
 
-## 📊 Datos Actuales
+## 📊 Datos Actuales (v2.0)
 
 La ontología contiene:
-- **4 Artistas**: John Lennon, Paul McCartney, Miles Davis, Taylor Swift
-- **4 Álbumes**: Abbey Road, A Kind of Blue, Fearless, Red
-- **12 Canciones**: Distribuidas entre los álbumes
-- **7 Instrumentos**: Guitar, Bass, Piano, Drums, Saxophone, Violin, Synth
-- **4 Géneros**: Rock, Jazz, Pop, Classical
-- **248 RDF Triplas**: Relaciones semánticas completas
+- **10 Artistas**: John Lennon, Paul McCartney, Miles Davis, Taylor Swift, David Bowie, Aretha Franklin, Bob Dylan, Björk, Kendrick Lamar, Pink Floyd
+- **11 Álbumes**: Abbey Road, A Kind of Blue, Fearless, Red, Hunky Dory, Ziggy Stardust, Young Gifted and Black, Blonde on Blonde, Post, Good Kid m.A.A.d City, The Dark Side of the Moon
+- **16 Canciones**: Come Together, Something, The End, So What, Blue in Green, Love Story, You Belong With Me, All Too Well, We Are Never Ever, Changes, Respect, Rainy Day Women, Time, Money
+- **10 Instrumentos**: Guitar, Bass, Piano, Drums, Saxophone, Violin, Synth, Flute, Cello, Trumpet
+- **8 Géneros**: Rock, Jazz, Pop, Classical, Electronic, Hip-Hop, Blues, Folk
+- **336 RDF Triplas**: Relaciones semánticas completas (+35% vs v1.0)
+
+---
+
+---
+
+## 📖 Troubleshooting
+
+### Frontend no carga
+```bash
+# Verificar que el servidor frontend esté corriendo
+# Si no, en Frontend/:
+npm run dev
+
+# Limpiar cache
+rm -rf node_modules
+npm install
+npm run dev
+```
+
+### Backend no responde
+```bash
+# Verificar que está corriendo
+curl http://127.0.0.1:8000/health
+
+# Si falla, reiniciar desde Backend/:
+python -m uvicorn app:app --reload --host 127.0.0.1 --port 8000
+```
+
+### CORS Error
+- ✅ Ya está configurado (CORS habilitado en el backend)
+- Si persiste: Verificar que Frontend está en `http://localhost:5173` (no `127.0.0.1`)
+
+### "Ontología no encontrada"
+- Verificar que `Backend/data/music-ontology.owl` existe
+- Reiniciar el backend para recargar la ontología
+
+### Port already in use
+```bash
+# Windows - Encontrar proceso en puerto 8000
+netstat -ano | findstr :8000
+taskkill /PID <PID> /F
+
+# macOS/Linux
+lsof -i :8000
+kill -9 <PID>
+```
 
 ---
 
 ## 🛠️ Tecnologías
 
-**Backend**
-- FastAPI 0.121.2 - Framework web moderno
-- RDFlib 7.4.0 - Procesamiento RDF/OWL
-- Pydantic 2.12.4 - Validación de datos
-- Uvicorn 0.38.0 - Servidor ASGI
+### Backend
+- **FastAPI 0.121.2** - Framework web async moderno
+- **RDFlib 7.4.0** - Procesamiento RDF/OWL semántico
+- **Pydantic 2.12.4** - Validación de datos con tipos
+- **Uvicorn 0.38.0** - Servidor ASGI de alto rendimiento
+- **Python 3.9+** - Lenguaje de programación
 
-**Frontend**
-- React 19.2.0 - UI framework
-- TypeScript 5.9.3 - Type safety
-- Vite 7.2.2 - Build tool
-- Axios 1.13.2 - HTTP client
-- CSS Modules - Styling
+### Frontend
+- **React 19.2.0** - UI framework moderno
+- **TypeScript 5.9.3** - Tipado estático para JavaScript
+- **Vite 7.2.2** - Build tool ultrarrápido
+- **Axios 1.13.2** - Cliente HTTP para API calls
+- **Lucide React** - Iconografía profesional
+- **CSS Modules** - Estilos encapsulados y componibles
+- **Node.js 22.11.0** - Entorno de ejecución JavaScript
+
+### Utilities
+- **Git** - Control de versiones
+- **npm** - Gestor de paquetes Node.js
+- **pip** - Gestor de paquetes Python
 
 ---
 
-## 📖 Ejemplos de Uso
+## 🎮 Uso
+
+### Ejemplos de Búsqueda
+
+```
+1. Búsqueda General
+   - Abre: http://localhost:5173
+   - Ingresa: "john"
+   - Resultado: John Lennon, sus álbumes y canciones
+
+2. Búsqueda Filtrada por Álbum
+   - Selecciona filtro: "Álbumes"
+   - Ingresa: "abbey"
+   - Resultado: Abbey Road con detalles
+
+3. Búsqueda por Instrumento
+   - Selecciona filtro: "Instrumentos"
+   - Ingresa: "guitar"
+   - Resultado: Guitarra y todas sus usos en canciones
+
+4. Búsqueda por Género
+   - Selecciona filtro: "Géneros"
+   - Ingresa: "rock"
+   - Resultado: Todos los artistas y álbumes rock
+```
+
+### Filtros Disponibles
+
+| Filtro | Busca |
+|--------|-------|
+| 🔍 Todos | En toda la ontología |
+| 👥 Artistas | Solo artistas |
+| 💿 Álbumes | Solo álbumes |
+| 🎵 Canciones | Solo canciones |
+| ⚡ Instrumentos | Solo instrumentos |
+| 🏷️ Géneros | Solo géneros |
+
+---
+
+## 🔗 API Endpoints
 
 ### Búsqueda General
-```
-Abre http://localhost:5173
-Ingresa "john" en la búsqueda
-Presiona Enter
-→ Encontrará a John Lennon y sus relacionados
+```bash
+GET /api/search?q=john
 ```
 
-### Con Filtros
+### Por Tipo
+```bash
+GET /api/artists              # Todos los artistas
+GET /api/albums               # Todos los álbumes
+GET /api/songs                # Todas las canciones
+GET /api/instruments          # Todos los instrumentos
+GET /api/genres               # Todos los géneros
 ```
-Busca "abbey" con filtro "Álbumes"
-→ Mostrará solo el álbum Abbey Road
 
-Busca "guitar" con filtro "Instrumentos"
-→ Mostrará la guitarra y sus usos
+### Búsquedas Específicas
+```bash
+GET /api/search/artists?q=taylor       # Buscar artistas
+GET /api/search/albums?q=abbey         # Buscar álbumes
+GET /api/search/songs?q=love           # Buscar canciones
+GET /api/search/instruments?q=guitar   # Buscar instrumentos
+GET /api/search/genres?q=rock          # Buscar géneros
+```
+
+### Relaciones
+```bash
+GET /api/artist/{uri}/albums           # Álbumes de artista
+GET /api/album/{uri}/songs             # Canciones de álbum
+GET /api/song/{uri}/instruments        # Instrumentos en canción
+```
+
+### Utilitarios
+```bash
+GET /health                    # Estado del servidor
+GET /api/stats                 # Estadísticas de la ontología
 ```
 
 ---
 
-## 🔗 URLs Principales
+## 📍 URLs Principales
 
-| Recurso | URL |
-|---------|-----|
-| Frontend | http://localhost:5173 |
-| Backend | http://127.0.0.1:8000 |
-| Swagger API | http://127.0.0.1:8000/docs |
-| ReDoc API | http://127.0.0.1:8000/redoc |
-| Health Check | http://127.0.0.1:8000/health |
+| Recurso | URL | Descripción |
+|---------|-----|-------------|
+| **Frontend** | http://localhost:5173 | Aplicación web |
+| **Backend** | http://127.0.0.1:8000 | API REST |
+| **Swagger API** | http://127.0.0.1:8000/docs | Documentación interactiva |
+| **ReDoc API** | http://127.0.0.1:8000/redoc | Documentación alternativa |
+| **Health Check** | http://127.0.0.1:8000/health | Verificar estado del backend |
 
 ---
 
 ## 📝 Licencia
 
-Ver archivo `LICENSE` para más detalles.
+Este proyecto está bajo licencia MIT. Ver archivo `LICENSE` para más detalles.
 
 ---
 
-**Estado**: ✅ Operativo y funcional
+## 🤝 Contribuciones
+
+¡Las contribuciones son bienvenidas! Para cambios significativos:
+
+1. Fork el repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+---
+
+## 📚 Recursos Adicionales
+
+### Documentación
+- [FastAPI Docs](https://fastapi.tiangolo.com/)
+- [React Docs](https://react.dev/)
+- [RDFlib Docs](https://rdflib.readthedocs.io/)
+- [Vite Docs](https://vitejs.dev/)
+
+### Tutoriales
+- [Búsqueda semántica con RDF](https://www.w3.org/RDF/)
+- [Construcción de APIs con FastAPI](https://fastapi.tiangolo.com/tutorial/)
+- [React + TypeScript](https://react.dev/learn/typescript)
+
+---
+
+## 📧 Contacto
+
+Para preguntas o sugerencias, abre un issue en GitHub.
+
+---
+
+**Última actualización**: 19 de noviembre de 2025  
+**Versión**: 2.0  
+**Estado**: ✅ Operacional y funcional
