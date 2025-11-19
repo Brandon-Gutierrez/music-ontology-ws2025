@@ -1,0 +1,35 @@
+# Archivos de Ontología
+
+Este directorio contiene los archivos RDF/OWL de la ontología de música.
+
+## Archivos
+
+### music-ontology.owl
+Ontología OWL que modela conceptos del dominio musical:
+- **Clases**: Artist, Album, Song, Instrument, Genre
+- **Relaciones**: hasAlbum, containsSong, usesInstrument, performedBy, hasGenre, performsGenre
+- **Propiedades**: name, duration, releaseYear, description, type
+- **Instancias**: 4 artistas, 4 géneros, 7 instrumentos, 4 álbumes, 12 canciones
+
+## Estadísticas
+
+- Total de triplas RDF: 248
+- Artistas: 4
+- Álbumes: 4
+- Canciones: 12
+- Instrumentos: 7
+- Géneros: 4
+
+## Formato
+
+Formato XML/RDF compatible con RDFlib y OWL 2.0
+
+## Carga de Ontología
+
+Desde Python:
+```python
+from rdflib import Graph
+
+graph = Graph()
+graph.parse('data/music-ontology.owl', format='xml')
+```

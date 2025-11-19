@@ -1,0 +1,484 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+         xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+         xmlns:owl="http://www.w3.org/2002/07/owl#"
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+         xmlns:music="http://example.org/music-ontology#">
+
+    <owl:Ontology rdf:about="http://example.org/music-ontology">
+        <rdfs:label>Music Ontology</rdfs:label>
+        <rdfs:comment>Ontología extendida para modelar conceptos relacionados con música</rdfs:comment>
+        <owl:versionInfo>2.0</owl:versionInfo>
+    </owl:Ontology>
+
+    <!-- CLASES -->
+    <owl:Class rdf:about="http://example.org/music-ontology#Artist">
+        <rdfs:label>Artista</rdfs:label>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://example.org/music-ontology#Album">
+        <rdfs:label>Álbum</rdfs:label>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://example.org/music-ontology#Song">
+        <rdfs:label>Canción</rdfs:label>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://example.org/music-ontology#Instrument">
+        <rdfs:label>Instrumento</rdfs:label>
+    </owl:Class>
+
+    <owl:Class rdf:about="http://example.org/music-ontology#Genre">
+        <rdfs:label>Género</rdfs:label>
+    </owl:Class>
+
+    <!-- PROPIEDADES DE OBJETO -->
+    <owl:ObjectProperty rdf:about="http://example.org/music-ontology#hasAlbum">
+        <rdfs:label>tiene álbum</rdfs:label>
+        <rdfs:domain rdf:resource="http://example.org/music-ontology#Artist"/>
+        <rdfs:range rdf:resource="http://example.org/music-ontology#Album"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="http://example.org/music-ontology#containsSong">
+        <rdfs:label>contiene canción</rdfs:label>
+        <rdfs:domain rdf:resource="http://example.org/music-ontology#Album"/>
+        <rdfs:range rdf:resource="http://example.org/music-ontology#Song"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="http://example.org/music-ontology#usesInstrument">
+        <rdfs:label>usa instrumento</rdfs:label>
+        <rdfs:domain rdf:resource="http://example.org/music-ontology#Song"/>
+        <rdfs:range rdf:resource="http://example.org/music-ontology#Instrument"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="http://example.org/music-ontology#performedBy">
+        <rdfs:label>interpretada por</rdfs:label>
+        <rdfs:domain rdf:resource="http://example.org/music-ontology#Song"/>
+        <rdfs:range rdf:resource="http://example.org/music-ontology#Artist"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="http://example.org/music-ontology#hasGenre">
+        <rdfs:label>tiene género</rdfs:label>
+        <rdfs:domain rdf:resource="http://example.org/music-ontology#Album"/>
+        <rdfs:range rdf:resource="http://example.org/music-ontology#Genre"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="http://example.org/music-ontology#performsGenre">
+        <rdfs:label>interpreta género</rdfs:label>
+        <rdfs:domain rdf:resource="http://example.org/music-ontology#Artist"/>
+        <rdfs:range rdf:resource="http://example.org/music-ontology#Genre"/>
+    </owl:ObjectProperty>
+
+    <!-- PROPIEDADES DE DATOS -->
+    <owl:DatatypeProperty rdf:about="http://example.org/music-ontology#name">
+        <rdfs:label>nombre</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="http://example.org/music-ontology#description">
+        <rdfs:label>descripción</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="http://example.org/music-ontology#duration">
+        <rdfs:label>duración</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="http://example.org/music-ontology#releaseYear">
+        <rdfs:label>año de lanzamiento</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>
+    </owl:DatatypeProperty>
+
+    <owl:DatatypeProperty rdf:about="http://example.org/music-ontology#type">
+        <rdfs:label>tipo</rdfs:label>
+        <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    </owl:DatatypeProperty>
+
+    <!-- GÉNEROS -->
+    <music:Genre rdf:about="http://example.org/music-ontology#genre-rock">
+        <music:name>Rock</music:name>
+        <music:description>Género de música basado en guitarras eléctricas</music:description>
+    </music:Genre>
+    <music:Genre rdf:about="http://example.org/music-ontology#genre-pop">
+        <music:name>Pop</music:name>
+        <music:description>Género musical popular y accesible</music:description>
+    </music:Genre>
+    <music:Genre rdf:about="http://example.org/music-ontology#genre-jazz">
+        <music:name>Jazz</music:name>
+        <music:description>Género improvisado con raíces africanas</music:description>
+    </music:Genre>
+    <music:Genre rdf:about="http://example.org/music-ontology#genre-classical">
+        <music:name>Clásica</music:name>
+        <music:description>Música clásica europea orquestral</music:description>
+    </music:Genre>
+    <music:Genre rdf:about="http://example.org/music-ontology#genre-electronic">
+        <music:name>Electrónica</music:name>
+        <music:description>Género basado en sintetizadores</music:description>
+    </music:Genre>
+    <music:Genre rdf:about="http://example.org/music-ontology#genre-hiphop">
+        <music:name>Hip-Hop</music:name>
+        <music:description>Género urbano con rimas pegajosas</music:description>
+    </music:Genre>
+    <music:Genre rdf:about="http://example.org/music-ontology#genre-blues">
+        <music:name>Blues</music:name>
+        <music:description>Género emocional afroamericano</music:description>
+    </music:Genre>
+    <music:Genre rdf:about="http://example.org/music-ontology#genre-folk">
+        <music:name>Folk</music:name>
+        <music:description>Música tradicional de pueblos</music:description>
+    </music:Genre>
+
+    <!-- INSTRUMENTOS -->
+    <music:Instrument rdf:about="http://example.org/music-ontology#instr-guitar">
+        <music:name>Guitarra</music:name>
+        <music:type>Cuerda</music:type>
+        <music:description>Instrumento de cuerda pulsada</music:description>
+    </music:Instrument>
+    <music:Instrument rdf:about="http://example.org/music-ontology#instr-bass">
+        <music:name>Bajo</music:name>
+        <music:type>Cuerda</music:type>
+        <music:description>Instrumento de cuerda grave</music:description>
+    </music:Instrument>
+    <music:Instrument rdf:about="http://example.org/music-ontology#instr-piano">
+        <music:name>Piano</music:name>
+        <music:type>Teclado</music:type>
+        <music:description>Instrumento de teclas</music:description>
+    </music:Instrument>
+    <music:Instrument rdf:about="http://example.org/music-ontology#instr-drums">
+        <music:name>Batería</music:name>
+        <music:type>Percusión</music:type>
+        <music:description>Conjunto de tambores</music:description>
+    </music:Instrument>
+    <music:Instrument rdf:about="http://example.org/music-ontology#instr-saxophone">
+        <music:name>Saxófono</music:name>
+        <music:type>Viento</music:type>
+        <music:description>Instrumento de viento</music:description>
+    </music:Instrument>
+    <music:Instrument rdf:about="http://example.org/music-ontology#instr-violin">
+        <music:name>Violín</music:name>
+        <music:type>Cuerda</music:type>
+        <music:description>Instrumento de cuerda frotada</music:description>
+    </music:Instrument>
+    <music:Instrument rdf:about="http://example.org/music-ontology#instr-synth">
+        <music:name>Sintetizador</music:name>
+        <music:type>Electrónico</music:type>
+        <music:description>Instrumento electrónico</music:description>
+    </music:Instrument>
+    <music:Instrument rdf:about="http://example.org/music-ontology#instr-flute">
+        <music:name>Flauta</music:name>
+        <music:type>Viento</music:type>
+        <music:description>Instrumento de viento</music:description>
+    </music:Instrument>
+    <music:Instrument rdf:about="http://example.org/music-ontology#instr-cello">
+        <music:name>Violonchelo</music:name>
+        <music:type>Cuerda</music:type>
+        <music:description>Instrumento de cuerda grave</music:description>
+    </music:Instrument>
+    <music:Instrument rdf:about="http://example.org/music-ontology#instr-trumpet">
+        <music:name>Trompeta</music:name>
+        <music:type>Viento</music:type>
+        <music:description>Instrumento de viento agudo</music:description>
+    </music:Instrument>
+
+    <!-- ARTISTAS -->
+    <music:Artist rdf:about="http://example.org/music-ontology#artist-john-lennon">
+        <music:name>John Lennon</music:name>
+        <music:description>Legendario miembro de The Beatles</music:description>
+        <music:performsGenre rdf:resource="http://example.org/music-ontology#genre-rock"/>
+    </music:Artist>
+    <music:Artist rdf:about="http://example.org/music-ontology#artist-paul-mccartney">
+        <music:name>Paul McCartney</music:name>
+        <music:description>Miembro fundador de The Beatles</music:description>
+        <music:performsGenre rdf:resource="http://example.org/music-ontology#genre-rock"/>
+    </music:Artist>
+    <music:Artist rdf:about="http://example.org/music-ontology#artist-miles-davis">
+        <music:name>Miles Davis</music:name>
+        <music:description>Leyenda del jazz</music:description>
+        <music:performsGenre rdf:resource="http://example.org/music-ontology#genre-jazz"/>
+    </music:Artist>
+    <music:Artist rdf:about="http://example.org/music-ontology#artist-taylor-swift">
+        <music:name>Taylor Swift</music:name>
+        <music:description>Cantautora pop contemporánea</music:description>
+        <music:performsGenre rdf:resource="http://example.org/music-ontology#genre-pop"/>
+    </music:Artist>
+    <music:Artist rdf:about="http://example.org/music-ontology#artist-david-bowie">
+        <music:name>David Bowie</music:name>
+        <music:description>Innovador de rock y electrónica</music:description>
+        <music:performsGenre rdf:resource="http://example.org/music-ontology#genre-rock"/>
+    </music:Artist>
+    <music:Artist rdf:about="http://example.org/music-ontology#artist-aretha-franklin">
+        <music:name>Aretha Franklin</music:name>
+        <music:description>Reina del Soul</music:description>
+        <music:performsGenre rdf:resource="http://example.org/music-ontology#genre-blues"/>
+    </music:Artist>
+    <music:Artist rdf:about="http://example.org/music-ontology#artist-bob-dylan">
+        <music:name>Bob Dylan</music:name>
+        <music:description>Poeta y músico de folk y rock</music:description>
+        <music:performsGenre rdf:resource="http://example.org/music-ontology#genre-folk"/>
+    </music:Artist>
+    <music:Artist rdf:about="http://example.org/music-ontology#artist-bjork">
+        <music:name>Björk</music:name>
+        <music:description>Artista experimental islandesa</music:description>
+        <music:performsGenre rdf:resource="http://example.org/music-ontology#genre-electronic"/>
+    </music:Artist>
+    <music:Artist rdf:about="http://example.org/music-ontology#artist-kendrick-lamar">
+        <music:name>Kendrick Lamar</music:name>
+        <music:description>Rapero y productor contemporáneo</music:description>
+        <music:performsGenre rdf:resource="http://example.org/music-ontology#genre-hiphop"/>
+    </music:Artist>
+    <music:Artist rdf:about="http://example.org/music-ontology#artist-pinkfloyd">
+        <music:name>Pink Floyd</music:name>
+        <music:description>Banda legendaria de rock progresivo</music:description>
+        <music:performsGenre rdf:resource="http://example.org/music-ontology#genre-rock"/>
+    </music:Artist>
+
+    <!-- ÁLBUMES -->
+    <music:Album rdf:about="http://example.org/music-ontology#album-abbey-road">
+        <music:name>Abbey Road</music:name>
+        <music:description>Último álbum de The Beatles</music:description>
+        <music:releaseYear>1969</music:releaseYear>
+        <music:hasGenre rdf:resource="http://example.org/music-ontology#genre-rock"/>
+    </music:Album>
+    <music:Album rdf:about="http://example.org/music-ontology#album-kind-of-blue">
+        <music:name>A Kind of Blue</music:name>
+        <music:description>Álbum de jazz modal</music:description>
+        <music:releaseYear>1959</music:releaseYear>
+        <music:hasGenre rdf:resource="http://example.org/music-ontology#genre-jazz"/>
+    </music:Album>
+    <music:Album rdf:about="http://example.org/music-ontology#album-fearless">
+        <music:name>Fearless</music:name>
+        <music:description>Segundo álbum de Taylor Swift</music:description>
+        <music:releaseYear>2008</music:releaseYear>
+        <music:hasGenre rdf:resource="http://example.org/music-ontology#genre-pop"/>
+    </music:Album>
+    <music:Album rdf:about="http://example.org/music-ontology#album-red">
+        <music:name>Red</music:name>
+        <music:description>Cuarto álbum de Taylor Swift</music:description>
+        <music:releaseYear>2012</music:releaseYear>
+        <music:hasGenre rdf:resource="http://example.org/music-ontology#genre-pop"/>
+    </music:Album>
+    <music:Album rdf:about="http://example.org/music-ontology#album-hunky-dory">
+        <music:name>Hunky Dory</music:name>
+        <music:description>Segundo álbum de David Bowie</music:description>
+        <music:releaseYear>1971</music:releaseYear>
+        <music:hasGenre rdf:resource="http://example.org/music-ontology#genre-rock"/>
+    </music:Album>
+    <music:Album rdf:about="http://example.org/music-ontology#album-ziggy-stardust">
+        <music:name>The Rise and Fall of Ziggy Stardust</music:name>
+        <music:description>Álbum conceptual de David Bowie</music:description>
+        <music:releaseYear>1972</music:releaseYear>
+        <music:hasGenre rdf:resource="http://example.org/music-ontology#genre-rock"/>
+    </music:Album>
+    <music:Album rdf:about="http://example.org/music-ontology#album-young-gifted-black">
+        <music:name>Young, Gifted and Black</music:name>
+        <music:description>Álbum de Aretha Franklin</music:description>
+        <music:releaseYear>1972</music:releaseYear>
+        <music:hasGenre rdf:resource="http://example.org/music-ontology#genre-blues"/>
+    </music:Album>
+    <music:Album rdf:about="http://example.org/music-ontology#album-blonde-on-blonde">
+        <music:name>Blonde on Blonde</music:name>
+        <music:description>Álbum de folk-rock de Bob Dylan</music:description>
+        <music:releaseYear>1966</music:releaseYear>
+        <music:hasGenre rdf:resource="http://example.org/music-ontology#genre-folk"/>
+    </music:Album>
+    <music:Album rdf:about="http://example.org/music-ontology#album-post">
+        <music:name>Post</music:name>
+        <music:description>Álbum experimental de Björk</music:description>
+        <music:releaseYear>1995</music:releaseYear>
+        <music:hasGenre rdf:resource="http://example.org/music-ontology#genre-electronic"/>
+    </music:Album>
+    <music:Album rdf:about="http://example.org/music-ontology#album-good-kid-maad-city">
+        <music:name>Good Kid, m.A.A.d City</music:name>
+        <music:description>Álbum conceptual de Kendrick Lamar</music:description>
+        <music:releaseYear>2012</music:releaseYear>
+        <music:hasGenre rdf:resource="http://example.org/music-ontology#genre-hiphop"/>
+    </music:Album>
+    <music:Album rdf:about="http://example.org/music-ontology#album-dark-side-moon">
+        <music:name>The Dark Side of the Moon</music:name>
+        <music:description>Álbum conceptual de Pink Floyd</music:description>
+        <music:releaseYear>1973</music:releaseYear>
+        <music:hasGenre rdf:resource="http://example.org/music-ontology#genre-rock"/>
+    </music:Album>
+
+    <!-- CANCIONES -->
+    <music:Song rdf:about="http://example.org/music-ontology#song-come-together">
+        <music:name>Come Together</music:name>
+        <music:description>Tema de apertura de Abbey Road</music:description>
+        <music:duration>259</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-john-lennon"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-guitar"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-bass"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-something">
+        <music:name>Something</music:name>
+        <music:description>Composición de George Harrison</music:description>
+        <music:duration>183</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-paul-mccartney"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-guitar"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-piano"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-the-end">
+        <music:name>The End</music:name>
+        <music:description>Última canción de The Beatles</music:description>
+        <music:duration>226</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-paul-mccartney"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-guitar"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-so-what">
+        <music:name>So What</music:name>
+        <music:description>Composición modal de Miles Davis</music:description>
+        <music:duration>567</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-miles-davis"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-saxophone"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-piano"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-blue-in-green">
+        <music:name>Blue in Green</music:name>
+        <music:description>Tema jazístico contemplativo</music:description>
+        <music:duration>481</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-miles-davis"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-piano"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-saxophone"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-love-story">
+        <music:name>Love Story</music:name>
+        <music:description>Tema pop de Taylor Swift</music:description>
+        <music:duration>194</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-taylor-swift"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-guitar"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-synth"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-you-belong-with-me">
+        <music:name>You Belong With Me</music:name>
+        <music:description>Canción pop juvenil</music:description>
+        <music:duration>193</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-taylor-swift"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-synth"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-guitar"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-all-too-well">
+        <music:name>All Too Well</music:name>
+        <music:description>Balada narrativa de Taylor Swift</music:description>
+        <music:duration>506</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-taylor-swift"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-guitar"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-piano"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-we-are-never-ever">
+        <music:name>We Are Never Ever Getting Back Together</music:name>
+        <music:description>Tema pop-dance</music:description>
+        <music:duration>219</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-taylor-swift"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-synth"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-drums"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-changes">
+        <music:name>Changes</music:name>
+        <music:description>Tema de rock de David Bowie</music:description>
+        <music:duration>264</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-david-bowie"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-guitar"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-piano"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-respect">
+        <music:name>Respect</music:name>
+        <music:description>Clásico de Aretha Franklin</music:description>
+        <music:duration>239</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-aretha-franklin"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-saxophone"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-drums"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-rainy-day-women">
+        <music:name>Rainy Day Women</music:name>
+        <music:description>Tema folk de Bob Dylan</music:description>
+        <music:duration>207</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-bob-dylan"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-guitar"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-time">
+        <music:name>Time</music:name>
+        <music:description>Tema épico de Pink Floyd</music:description>
+        <music:duration>429</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-pinkfloyd"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-guitar"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-drums"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-synth"/>
+    </music:Song>
+    <music:Song rdf:about="http://example.org/music-ontology#song-money">
+        <music:name>Money</music:name>
+        <music:description>Tema de rock funk de Pink Floyd</music:description>
+        <music:duration>251</music:duration>
+        <music:performedBy rdf:resource="http://example.org/music-ontology#artist-pinkfloyd"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-saxophone"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-bass"/>
+        <music:usesInstrument rdf:resource="http://example.org/music-ontology#instr-drums"/>
+    </music:Song>
+
+    <!-- RELACIONES: ARTISTAS - ÁLBUMES -->
+    <rdf:Description rdf:about="http://example.org/music-ontology#artist-john-lennon">
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-abbey-road"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#artist-paul-mccartney">
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-abbey-road"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#artist-miles-davis">
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-kind-of-blue"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#artist-taylor-swift">
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-fearless"/>
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-red"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#artist-david-bowie">
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-hunky-dory"/>
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-ziggy-stardust"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#artist-aretha-franklin">
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-young-gifted-black"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#artist-bob-dylan">
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-blonde-on-blonde"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#artist-bjork">
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-post"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#artist-kendrick-lamar">
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-good-kid-maad-city"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#artist-pinkfloyd">
+        <music:hasAlbum rdf:resource="http://example.org/music-ontology#album-dark-side-moon"/>
+    </rdf:Description>
+
+    <!-- RELACIONES: ÁLBUMES - CANCIONES -->
+    <rdf:Description rdf:about="http://example.org/music-ontology#album-abbey-road">
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-come-together"/>
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-something"/>
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-the-end"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#album-kind-of-blue">
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-so-what"/>
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-blue-in-green"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#album-fearless">
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-love-story"/>
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-you-belong-with-me"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#album-red">
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-all-too-well"/>
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-we-are-never-ever"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#album-hunky-dory">
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-changes"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#album-young-gifted-black">
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-respect"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#album-blonde-on-blonde">
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-rainy-day-women"/>
+    </rdf:Description>
+    <rdf:Description rdf:about="http://example.org/music-ontology#album-dark-side-moon">
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-time"/>
+        <music:containsSong rdf:resource="http://example.org/music-ontology#song-money"/>
+    </rdf:Description>
+
+</rdf:RDF>
