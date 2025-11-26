@@ -2,7 +2,15 @@
 
 Un buscador inteligente basado en ontologías RDF/OWL que permite explorar información sobre artistas, álbumes, canciones, instrumentos y géneros musicales con una interfaz moderna con modo oscuro y tema verde.
 
-**Versión**: 2.0 | **Estado**: ✅ Operacional | **Ontología**: 336 triplas RDF
+**Versión**: 3.0 | **Estado**: ✅ Operacional | **Ontología**: 618 triplas RDF | **DBpedia**: ✅ Integrado
+
+## 🌟 Nuevas Características v3.0
+
+- 🌐 **Integración con DBpedia**: Acceso a millones de entidades musicales vía SPARQL
+- 🔄 **Búsqueda Multi-Modo**: Local, Online (DBpedia) o Híbrida
+- 📥 **Enriquecimiento de Ontología**: Poblar datos desde DBpedia mediante API o CLI
+- ⚡ **Caché Inteligente**: Resultados de DBpedia cacheados para mejor rendimiento
+- 🎯 **Selector Visual de Modo**: UI mejorada con iconos para cada modo de búsqueda
 
 ---
 
@@ -37,6 +45,10 @@ Un buscador inteligente basado en ontologías RDF/OWL que permite explorar infor
   
 - **Git**: (opcional pero recomendado)
   - Descargar: https://git-scm.com/
+
+### Conexión a Internet (Opcional)
+- **Requerida para**: Búsqueda en DBpedia y enriquecimiento de ontología
+- **No requerida para**: Búsqueda local (modo offline)
 
 ---
 
@@ -184,7 +196,6 @@ music-ontology-ws2025/
 │   ├── tsconfig.json                # Configuración TypeScript
 │   └── README.md                    # Documentación Frontend
 │
-├── ENHANCEMENT_SUMMARY.md           # Cambios en v2.0
 ├── LICENSE                          # Licencia MIT
 ├── README.md                        # Este archivo
 └── .gitignore                       # Archivos ignorados en Git
@@ -195,10 +206,15 @@ music-ontology-ws2025/
 ## ✨ Características
 
 ### 🎯 Búsqueda
-- ✅ **Búsqueda Semántica**: Busca inteligentemente en toda la ontología (336 triplas)
+- ✅ **Búsqueda Semántica**: Busca inteligentemente en toda la ontología (618 triplas)
 - ✅ **Búsqueda Filtrada**: Por tipo de entidad (Artistas, Álbumes, Canciones, Instrumentos, Géneros)
+- ✅ **Búsqueda Multi-Modo**: 
+  - 🔌 **Local**: Búsqueda rápida en ontología local
+  - 🌐 **DBpedia**: Acceso a millones de entidades musicales
+  - ⚡ **Híbrida**: Combina resultados locales + DBpedia
 - ✅ **Resultados Enriquecidos**: Información detallada de cada entidad
 - ✅ **Indicador de Estado**: Muestra si el backend está conectado
+- ✅ **Badges de Fuente**: Indica origen de cada resultado (Local/DBpedia)
 
 ### 🎨 Interfaz
 - ✅ **Modo Oscuro**: Fondo oscuro con tema verde (#10B981 - #22C55E)
@@ -208,16 +224,19 @@ music-ontology-ws2025/
 - ✅ **Animaciones Suaves**: Transiciones y efectos hover
 
 ### 🔌 API
-- ✅ **22 Endpoints REST**: Acceso completo a la ontología
+- ✅ **27+ Endpoints REST**: Acceso completo a la ontología y DBpedia
 - ✅ **CORS Habilitado**: Funciona desde cualquier origen
 - ✅ **Documentación Interactiva**: Swagger UI en `/docs` y ReDoc en `/redoc`
 - ✅ **Health Check**: Endpoint para verificar estado
+- ✅ **Endpoints de Enriquecimiento**: `/api/enrich`, `/api/enrich/batch`, `/api/enrich/stats`
+- ✅ **Búsqueda con Modo**: Parámetro `mode` en `/api/search` (offline/online/hybrid)
 
 ### 📊 Ontología
-- ✅ **336 Triplas RDF**: Relaciones semánticas completas
+- ✅ **618 Triplas RDF**: Relaciones semánticas completas (expandible vía DBpedia)
 - ✅ **5 Clases**: Artist, Album, Song, Instrument, Genre
 - ✅ **11 Propiedades**: hasAlbum, containsSong, usesInstrument, etc.
-- ✅ **53 Instancias**: 10 artistas, 11 álbumes, 16 canciones, 10 instrumentos, 8 géneros
+- ✅ **53+ Instancias**: 10 artistas, 11 álbumes, 16 canciones, 10 instrumentos, 8 géneros
+- ✅ **Enriquecimiento Dinámico**: Agregar datos desde DBpedia sin editar OWL manualmente
 
 ---
 
@@ -284,6 +303,7 @@ kill -9 <PID>
 ### Backend
 - **FastAPI 0.121.2** - Framework web async moderno
 - **RDFlib 7.4.0** - Procesamiento RDF/OWL semántico
+- **SPARQLWrapper 2.0.0** - Consultas SPARQL a DBpedia
 - **Pydantic 2.12.4** - Validación de datos con tipos
 - **Uvicorn 0.38.0** - Servidor ASGI de alto rendimiento
 - **Python 3.9+** - Lenguaje de programación
@@ -347,7 +367,31 @@ kill -9 <PID>
 
 ### Búsqueda General
 ```bash
+# Búsqueda local (por defecto)
 GET /api/search?q=john
+
+# Búsqueda en DBpedia
+GET /api/search?q=beatles&mode=online
+
+# Búsqueda híbrida (local + DBpedia)
+GET /api/search?q=rock&mode=hybrid
+```
+
+### Enriquecimiento desde DBpedia
+```bash
+# Enriquecer un artista
+POST /api/enrich
+Body: {"entity_type": "artist", "name": "Radiohead", "fetch_albums": true}
+
+# Enriquecimiento por lotes
+POST /api/enrich/batch
+Body: {"entities": [{"type": "artist", "name": "Nirvana"}, ...]}
+
+# Obtener estadísticas de enriquecimiento
+GET /api/enrich/stats
+
+# Recargar ontología
+POST /api/enrich/reload
 ```
 
 ### Por Tipo
@@ -380,6 +424,91 @@ GET /api/song/{uri}/instruments        # Instrumentos en canción
 GET /health                    # Estado del servidor
 GET /api/stats                 # Estadísticas de la ontología
 ```
+
+---
+
+## 🌐 Enriquecimiento de Ontología con DBpedia
+
+### Método 1: Script CLI (Recomendado para lotes)
+
+```bash
+cd Backend
+
+# Agregar un artista
+python populate_from_dbpedia.py --artists "Radiohead"
+
+# Agregar múltiples artistas
+python populate_from_dbpedia.py --artists "Nirvana,Foo Fighters,Pearl Jam"
+
+# Agregar álbumes (con formato "Álbum - Artista")
+python populate_from_dbpedia.py --albums "OK Computer - Radiohead,In Utero - Nirvana"
+
+# Preview sin guardar (dry-run)
+python populate_from_dbpedia.py --artists "Pink Floyd" --dry-run
+
+# Desde archivo CSV
+python populate_from_dbpedia.py --file entities.csv
+```
+
+**Formato CSV** (entities.csv):
+```csv
+type,name,artist
+artist,Radiohead,
+album,OK Computer,Radiohead
+song,Creep,Radiohead
+```
+
+### Método 2: API REST
+
+```bash
+# Usando curl
+curl -X POST http://localhost:8000/api/enrich \
+  -H "Content-Type: application/json" \
+  -d '{
+    "entity_type": "artist",
+    "name": "Radiohead",
+    "fetch_albums": true
+  }'
+
+# Enriquecimiento por lotes
+curl -X POST http://localhost:8000/api/enrich/batch \
+  -H "Content-Type: application/json" \
+  -d '{
+    "entities": [
+      {"type": "artist", "name": "Nirvana"},
+      {"type": "album", "name": "Nevermind", "artist": "Nirvana"}
+    ]
+  }'
+```
+
+### Método 3: Desde el Frontend (Próximamente)
+
+Panel de enriquecimiento integrado en la interfaz web (en desarrollo).
+
+---
+
+## 🔍 Modos de Búsqueda
+
+### Modo Local (Offline)
+- ✅ Búsqueda rápida sin latencia
+- ✅ Funciona sin conexión a internet
+- ✅ Datos curados manualmente
+- **Cuándo usar**: Cuando trabajas sin internet o solo necesitas datos locales
+
+### Modo DBpedia (Online)
+- ✅ Acceso a millones de entidades musicales
+- ✅ Datos actualizados de Wikipedia
+- ✅ Información rica y estructurada
+- ⚠️ Requiere conexión a internet
+- ⚠️ Latencia de 1-5 segundos
+- **Cuándo usar**: Cuando buscas artistas/álbumes que no están en tu ontología local
+
+### Modo Híbrido
+- ✅ Combina resultados locales + DBpedia
+- ✅ Máxima cobertura
+- ✅ Elimina duplicados automáticamente
+- ✅ Muestra origen de cada resultado
+- **Cuándo usar**: Para obtener los mejores resultados posibles
 
 ---
 
@@ -434,6 +563,7 @@ Para preguntas o sugerencias, abre un issue en GitHub.
 
 ---
 
-**Última actualización**: 19 de noviembre de 2025  
-**Versión**: 2.0  
-**Estado**: ✅ Operacional y funcional
+**Última actualización**: 26 de noviembre de 2025  
+**Versión**: 3.0 (DBpedia Integration)  
+**Estado**: ✅ Operacional y funcional  
+**Nuevas Características**: 🌐 Búsqueda en DBpedia | 📥 Enriquecimiento de ontología | ⚡ Caché inteligente

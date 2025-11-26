@@ -3,7 +3,7 @@ import './App.css';
 import { Header } from './components/Header';
 import { SearchBar } from './components/SearchBar';
 import { ResultList } from './components/ResultList';
-import type { SearchResult } from './types';
+import type { SearchResult, SearchMode } from './types';
 import { apiService } from './services/api';
 
 function App() {
@@ -28,7 +28,7 @@ function App() {
     checkApi();
   }, []);
 
-  const handleSearch = async (query: string, filter: string) => {
+  const handleSearch = async (query: string, filter: string, mode: SearchMode = 'offline') => {
     setIsLoading(true);
     setError(undefined);
     setHasSearched(true);
@@ -43,8 +43,8 @@ function App() {
         return;
       }
 
-      // Búsqueda general con filtro opcional
-      searchResults = await apiService.search(query);
+      // Búsqueda con modo seleccionado (offline/online/hybrid)
+      searchResults = await apiService.searchWithMode(query, mode);
 
       // Aplicar filtro si no es "all"
       if (filter !== 'all') {
@@ -52,7 +52,7 @@ function App() {
       }
 
       if (searchResults.length === 0) {
-        setError(`No se encontraron resultados para "${query}" en la categoría ${filter !== 'all' ? filter : 'general'}`);
+        setError(`No se encontraron resultados para "${query}" en la categoría ${filter !== 'all' ? filter : 'general'} (modo: ${mode})`);
       }
 
       setResults(searchResults);

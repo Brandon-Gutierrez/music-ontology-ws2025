@@ -4,7 +4,11 @@ Routers - Endpoints de la API REST
 
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional, List
-from app.models import ApiResponse, SearchResult, OntologyStats
+from app.models import (
+    ApiResponse, SearchResult, OntologyStats, 
+    SearchMode, EnrichmentRequest, EnrichmentResponse,
+    BatchEnrichmentRequest, EnrichmentStats
+)
 from app.ontology import OntologyService
 import os
 
@@ -24,19 +28,36 @@ ontology_service = OntologyService(ontology_path)
 # ==================== BÚSQUEDA GENERAL ====================
 
 @router.get("/search")
-def search(q: str = Query(..., min_length=1)) -> ApiResponse:
+def search(
+    q: str = Query(..., min_length=1),
+    mode: SearchMode = Query(SearchMode.OFFLINE, description="Modo de búsqueda: offline, online, o hybrid")
+) -> ApiResponse:
     """
-    Búsqueda general en toda la ontología
+    Búsqueda general en toda la ontología con soporte para múltiples modos
     
     Query Parameters:
         q: Término de búsqueda (requerido)
+        mode: Modo de búsqueda (offline=local, online=DBpedia, hybrid=ambos)
     """
     try:
-        results = ontology_service.search(q)
+        results = ontology_service.search_with_mode(q, mode.value)
+        
+        # Contar fuentes
+        sources = {"local": 0, "dbpedia": 0}
+        for result in results:
+            source = result.get("source", "local")
+            sources[source] = sources.get(source, 0) + 1
+        
+        message = f"Se encontraron {len(results)} resultados"
+        if mode == SearchMode.HYBRID:
+            message += f" ({sources['local']} locales, {sources['dbpedia']} de DBpedia)"
+        elif mode == SearchMode.ONLINE:
+            message += " de DBpedia"
+        
         return ApiResponse(
             success=True,
             data=results,
-            message=f"Se encontraron {len(results)} resultados"
+            message=message
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -292,3 +313,119 @@ def get_stats() -> ApiResponse:
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== ENRIQUECIMIENTO DESDE DBPEDIA ====================
+
+# Inicializar servicio de enriquecimiento (lazy loading)
+enrichment_service = None
+
+def get_enrichment_service():
+    """Obtener servicio de enriquecimiento (lazy loading)"""
+    global enrichment_service
+    if enrichment_service is None:
+        from app.enrichment import OntologyEnrichment
+        enrichment_service = OntologyEnrichment(ontology_path)
+    return enrichment_service
+
+
+@router.post("/enrich", response_model=EnrichmentResponse)
+def enrich_entity(request: EnrichmentRequest) -> EnrichmentResponse:
+    """
+    Enriquecer la ontología con una entidad desde DBpedia
+    
+    Body:
+        entity_type: Tipo de entidad (artist, album, song)
+        name: Nombre de la entidad
+        artist: Nombre del artista (opcional, para álbumes y canciones)
+        fetch_albums: Si obtener álbumes también (solo para artistas)
+    """
+    try:
+        service = get_enrichment_service()
+        
+        if request.entity_type == "artist":
+            result = service.enrich_artist(request.name, request.fetch_albums)
+        elif request.entity_type == "album":
+            result = service.enrich_album(request.name, request.artist)
+        elif request.entity_type == "song":
+            result = service.enrich_song(request.name, request.artist)
+        else:
+            return EnrichmentResponse(
+                success=False,
+                message=f"Tipo de entidad desconocido: {request.entity_type}",
+                errors=[f"Tipo válidos: artist, album, song"]
+            )
+        
+        # Guardar si fue exitoso
+        if result["success"]:
+            service.save_enriched_ontology()
+            # Recargar ontología en el servicio principal
+            ontology_service.reload_ontology()
+        
+        return EnrichmentResponse(**result)
+        
+    except Exception as e:
+        return EnrichmentResponse(
+            success=False,
+            message=f"Error al enriquecer: {str(e)}",
+            errors=[str(e)]
+        )
+
+
+@router.post("/enrich/batch", response_model=EnrichmentResponse)
+def enrich_batch(request: BatchEnrichmentRequest) -> EnrichmentResponse:
+    """
+    Enriquecer la ontología con múltiples entidades en lote
+    
+    Body:
+        entities: Lista de entidades [{type, name, artist}, ...]
+    """
+    try:
+        service = get_enrichment_service()
+        result = service.enrich_batch(request.entities)
+        
+        # Guardar si hubo al menos una entidad exitosa
+        if result["successful"] > 0:
+            service.save_enriched_ontology()
+            ontology_service.reload_ontology()
+        
+        return EnrichmentResponse(
+            success=result["successful"] > 0,
+            message=f"Procesadas {result['total_entities']} entidades: {result['successful']} exitosas, {result['failed']} fallidas",
+            entities_added=result["successful"],
+            errors=result["errors"]
+        )
+        
+    except Exception as e:
+        return EnrichmentResponse(
+            success=False,
+            message=f"Error en enriquecimiento por lotes: {str(e)}",
+            errors=[str(e)]
+        )
+
+
+@router.get("/enrich/stats", response_model=EnrichmentStats)
+def get_enrichment_stats() -> EnrichmentStats:
+    """Obtener estadísticas de enriquecimiento"""
+    try:
+        service = get_enrichment_service()
+        stats = service.get_enrichment_stats()
+        return EnrichmentStats(**stats)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/enrich/reload")
+def reload_ontology() -> ApiResponse:
+    """Recargar la ontología desde el archivo (útil después de enriquecer manualmente)"""
+    try:
+        ontology_service.reload_ontology()
+        stats = ontology_service.get_ontology_stats()
+        return ApiResponse(
+            success=True,
+            data=stats,
+            message=f"Ontología recargada: {stats['total_triples']} triplas"
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+

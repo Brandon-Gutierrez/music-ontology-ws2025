@@ -22,6 +22,9 @@ class OntologyService:
         self.RDF = RDF
         self.RDFS = RDFS
         
+        # Inicializar servicio DBpedia (lazy loading para evitar errores si no se usa)
+        self._dbpedia_service = None
+        
         # Cargar ontología
         self._load_ontology()
     
@@ -325,6 +328,84 @@ class OntologyService:
                 "data": self._entity_to_dict(genre, "genre")
             })
         return genres
+    
+    @property
+    def dbpedia_service(self):
+        """Lazy loading del servicio DBpedia"""
+        if self._dbpedia_service is None:
+            try:
+                from app.dbpedia_service import DBpediaService
+                self._dbpedia_service = DBpediaService()
+            except Exception as e:
+                print(f"⚠ No se pudo cargar DBpediaService: {e}")
+                self._dbpedia_service = None
+        return self._dbpedia_service
+    
+    def search_with_mode(self, query: str, mode: str = "offline") -> List[Dict[str, Any]]:
+        """
+        Búsqueda con modo seleccionable (offline/online/hybrid)
+        
+        Args:
+            query: Término de búsqueda
+            mode: Modo de búsqueda ("offline", "online", "hybrid")
+            
+        Returns:
+            Lista de resultados con fuente indicada
+        """
+        if mode == "offline":
+            # Búsqueda local estándar
+            results = self.search(query)
+            # Agregar fuente "local" a cada resultado
+            for result in results:
+                result["source"] = "local"
+            return results
+        
+        elif mode == "online":
+            # Solo búsqueda en DBpedia
+            if self.dbpedia_service is None:
+                return []
+            
+            try:
+                dbpedia_results = self.dbpedia_service.query_general(query, limit=20)
+                return dbpedia_results
+            except Exception as e:
+                print(f"Error en búsqueda DBpedia: {e}")
+                return []
+        
+        elif mode == "hybrid":
+            # Combinar resultados locales y DBpedia
+            local_results = self.search(query)
+            for result in local_results:
+                result["source"] = "local"
+            
+            dbpedia_results = []
+            if self.dbpedia_service is not None:
+                try:
+                    dbpedia_results = self.dbpedia_service.query_general(query, limit=10)
+                except Exception as e:
+                    print(f"Error en búsqueda DBpedia: {e}")
+            
+            # Combinar y eliminar duplicados por nombre
+            combined = local_results.copy()
+            local_names = {r["data"]["name"].lower() for r in local_results}
+            
+            for dbp_result in dbpedia_results:
+                if dbp_result["data"]["name"].lower() not in local_names:
+                    combined.append(dbp_result)
+            
+            return combined
+        
+        else:
+            # Modo desconocido, usar offline por defecto
+            return self.search_with_mode(query, "offline")
+    
+    def reload_ontology(self):
+        """Recargar la ontología desde el archivo (útil después de enriquecer)"""
+        self.graph = Graph()
+        self.graph.bind("music", self.MUSIC)
+        self.graph.bind("rdf", RDF)
+        self.graph.bind("rdfs", RDFS)
+        self._load_ontology()
     
     def get_ontology_stats(self) -> Dict[str, int]:
         """Obtener estadísticas de la ontología"""

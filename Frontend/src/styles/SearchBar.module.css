@@ -60,6 +60,62 @@
   cursor: not-allowed;
 }
 
+/* Mode selector styles */
+.mode-selector {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.mode-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.mode-button {
+  padding: 6px 12px;
+  border: 2px solid var(--border-color);
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mode-icon {
+  display: flex;
+  align-items: center;
+}
+
+.mode-button:hover {
+  border-color: var(--color-green-primary);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.mode-button.mode-active {
+  background: linear-gradient(135deg, var(--color-green-primary), var(--color-green-dark));
+  color: var(--bg-primary);
+  border-color: var(--color-green-bright);
+  font-weight: 600;
+}
+
+.mode-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
 .filter-tabs {
   display: flex;
   gap: 10px;

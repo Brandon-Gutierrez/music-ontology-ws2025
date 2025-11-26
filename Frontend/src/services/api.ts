@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { SearchResult, ApiResponse } from '../types';
+import type { SearchResult, ApiResponse, SearchMode, EnrichmentRequest, EnrichmentResponse, EnrichmentStats } from '../types';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -22,7 +22,7 @@ export const apiService = {
     }
   },
 
-  // Búsqueda semántica general
+  // Búsqueda semántica general (legacy - sin modo)
   search: async (query: string): Promise<SearchResult[]> => {
     try {
       const response = await api.get<ApiResponse<SearchResult[]>>(
@@ -32,6 +32,64 @@ export const apiService = {
       return response.data.data;
     } catch (error) {
       console.error('Search error:', error);
+      throw error;
+    }
+  },
+
+  // Nueva búsqueda con modo (offline/online/hybrid)
+  searchWithMode: async (query: string, mode: SearchMode = 'offline'): Promise<SearchResult[]> => {
+    try {
+      const response = await api.get<ApiResponse<SearchResult[]>>(
+        '/api/search',
+        { params: { q: query, mode } }
+      );
+      return response.data.data;
+    } catch (error) {
+      console.error('Search with mode error:', error);
+      throw error;
+    }
+  },
+
+  // Enriquecer entidad desde DBpedia
+  enrichEntity: async (request: EnrichmentRequest): Promise<EnrichmentResponse> => {
+    try {
+      const response = await api.post<EnrichmentResponse>('/api/enrich', request);
+      return response.data;
+    } catch (error) {
+      console.error('Enrichment error:', error);
+      throw error;
+    }
+  },
+
+  // Enriquecimiento en lote
+  enrichBatch: async (entities: Array<{type: string, name: string, artist?: string}>): Promise<EnrichmentResponse> => {
+    try {
+      const response = await api.post<EnrichmentResponse>('/api/enrich/batch', { entities });
+      return response.data;
+    } catch (error) {
+      console.error('Batch enrichment error:', error);
+      throw error;
+    }
+  },
+
+  // Obtener estadísticas de enriquecimiento
+  getEnrichmentStats: async (): Promise<EnrichmentStats> => {
+    try {
+      const response = await api.get<EnrichmentStats>('/api/enrich/stats');
+      return response.data;
+    } catch (error) {
+      console.error('Get enrichment stats error:', error);
+      throw error;
+    }
+  },
+
+  // Recargar ontología
+  reloadOntology: async (): Promise<any> => {
+    try {
+      const response = await api.post('/api/enrich/reload');
+      return response.data;
+    } catch (error) {
+      console.error('Reload ontology error:', error);
       throw error;
     }
   },
@@ -212,3 +270,4 @@ export const apiService = {
     }
   },
 };
+
