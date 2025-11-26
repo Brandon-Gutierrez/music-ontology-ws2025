@@ -78,18 +78,6 @@ Si ves errores de CORS en la consola:
 2. Verifica que el frontend está en `localhost:5173`
 3. Los CORS ya están configurados, no debería haber problemas
 
----
-
-## 📊 Datos en la Ontología
-
-Actualmente hay:
-- **4 Artistas**: John Lennon, Paul McCartney, Miles Davis, Taylor Swift
-- **4 Álbumes**: Abbey Road, A Kind of Blue, Fearless, Red
-- **12 Canciones**: Distribuidas entre los álbumes
-- **7 Instrumentos**: Guitar, Bass, Piano, Drums, Saxophone, Violin, Synth
-- **4 Géneros**: Rock, Jazz, Pop, Classical
-
----
 
 ## 🔗 URLs Principales
 

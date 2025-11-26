@@ -74,7 +74,7 @@ python -m uvicorn app:app --reload --host 127.0.0.1 --port 8000
 **Esperado ver**:
 ```
 INFO:     Uvicorn running on http://127.0.0.1:8000
-INFO:     ✓ Ontología cargada: 336 triplas
+INFO:     ✓ Ontología cargada: 618 triplas
 ```
 
 ✅ Backend listo en: `http://127.0.0.1:8000`
