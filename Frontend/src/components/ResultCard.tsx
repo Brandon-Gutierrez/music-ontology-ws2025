@@ -229,7 +229,7 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result }) => {
             </div>
           </div>
         </div>
-        {source === 'dbpedia_live' && ('dbpediaUrl' in data) && data.dbpediaUrl && (
+        {(source === 'dbpedia_live' || source === 'dbpedia_downloaded') && ('dbpediaUrl' in data) && data.dbpediaUrl && (
           <a
             href={data.dbpediaUrl}
             target="_blank"

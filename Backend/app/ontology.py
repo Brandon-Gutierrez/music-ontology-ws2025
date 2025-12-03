@@ -47,7 +47,7 @@ class OntologyService:
         
         try:
             self.local_graph.parse(self.ontology_path, format='xml')
-            print(f"✓ Ontología local cargada: {len(self.local_graph)} triplas")
+            print(f"[OK] Ontologia local cargada: {len(self.local_graph)} triplas")
         except Exception as e:
             raise Exception(f"Error al cargar ontología local: {str(e)}")
         
@@ -55,9 +55,9 @@ class OntologyService:
         if os.path.exists(self.downloaded_path):
             try:
                 self.downloaded_graph.parse(self.downloaded_path, format='xml')
-                print(f"✓ Datos descargados de DBpedia: {len(self.downloaded_graph)} triplas")
+                print(f"[OK] Datos descargados de DBpedia: {len(self.downloaded_graph)} triplas")
             except Exception as e:
-                print(f"⚠ No se pudieron cargar datos descargados: {str(e)}")
+                print(f"[WARN] No se pudieron cargar datos descargados: {str(e)}")
         
         # Actualizar grafo combinado
         self._update_combined_graph()
@@ -578,7 +578,7 @@ class OntologyService:
                 from app.dbpedia_service import DBpediaService
                 self._dbpedia_service = DBpediaService()
             except Exception as e:
-                print(f"⚠ No se pudo cargar DBpediaService: {e}")
+                print(f"[WARN] No se pudo cargar DBpediaService: {e}")
                 self._dbpedia_service = None
         return self._dbpedia_service
     
@@ -589,7 +589,7 @@ class OntologyService:
         Args:
             query: Término de búsqueda
             mode: Modo de búsqueda ("offline", "online")
-            language: Idioma para consultas DBpedia (solo modo online)
+            language: Idioma para consultas DBpedia (modo online y para generar URLs en offline)
             
         Returns:
             Lista de resultados con fuente indicada
@@ -597,7 +597,7 @@ class OntologyService:
         if mode == "offline":
             # Búsqueda local (incluye datos locales y descargados de DBpedia)
             results = self.search(query)
-            # Los resultados ya tienen su fuente marcada por _entity_to_dict
+            # Los resultados en modo offline no deben tener dbpediaUrl
             return results
         
         elif mode == "online":

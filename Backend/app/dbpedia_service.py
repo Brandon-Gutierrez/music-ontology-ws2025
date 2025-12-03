@@ -52,7 +52,36 @@ class DBpediaService:
         # Formatear nombre: reemplazar espacios por guiones bajos
         formatted_name = entity_name.replace(" ", "_")
         return f"https://{domain}/page/{formatted_name}"
+    
+    def transform_dbpedia_url_to_language(self, dbpedia_uri: str) -> str:
+        """
+        Transformar URL de DBpedia al dominio del idioma configurado
         
+        Args:
+            dbpedia_uri: URI de DBpedia (ej: http://dbpedia.org/resource/The_Beatles)
+            
+        Returns:
+            URL de DBpedia en el idioma configurado (ej: http://fr.dbpedia.org/resource/The_Beatles)
+        """
+        if not dbpedia_uri or "dbpedia.org" not in dbpedia_uri:
+            return dbpedia_uri
+        
+        # Extraer el nombre de recurso
+        if "/resource/" in dbpedia_uri:
+            resource_name = dbpedia_uri.split("/resource/")[-1]
+        elif "/page/" in dbpedia_uri:
+            resource_name = dbpedia_uri.split("/page/")[-1]
+        else:
+            return dbpedia_uri
+        
+        # Obtener dominio del idioma
+        domain = self.LANGUAGE_DOMAINS.get(self.language, "dbpedia.org")
+        
+        # Si el idioma es inglés, usar dbpedia.org; sino, usar el subdominio de idioma
+        if self.language == "en":
+            return f"https://dbpedia.org/resource/{resource_name}"
+        else:
+            return f"https://{domain}/resource/{resource_name}"
     def _execute_sparql(self, query: str, use_cache: bool = True) -> Dict[str, Any]:
         """
         Ejecutar consulta SPARQL con manejo de errores y caché
@@ -73,6 +102,7 @@ class DBpediaService:
         
         try:
             self.sparql.setQuery(query)
+            self.sparql.setTimeout(10)  # Timeout de 10 segundos
             results = self.sparql.query().convert()
             
             # Guardar en caché
@@ -97,6 +127,8 @@ class DBpediaService:
         """
         # Usar idioma configurado o inglés como fallback
         lang = self.language if self.language else "en"
+        # Escapar caracteres especiales en la consulta SPARQL
+        safe_query = query.replace('"', '\\"')
         sparql_query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -104,9 +136,15 @@ class DBpediaService:
         
         SELECT DISTINCT ?artist ?name ?abstract ?birthPlace ?genre ?birthYear ?activeYears
         WHERE {{
-            ?artist a dbo:MusicalArtist .
-            ?artist foaf:name ?name .
-            FILTER(REGEX(?name, "{query}", "i"))
+            {{
+                ?artist a dbo:MusicalArtist ;
+                        foaf:name ?name .
+            }} UNION {{
+                ?artist a dbo:Person ;
+                        foaf:name ?name ;
+                        dbo:associatedBand|dbo:associatedMusicalArtist ?band .
+            }}
+            FILTER(REGEX(?name, "{safe_query}", "i"))
             
             OPTIONAL {{ 
                 ?artist dbo:abstract ?abstract .
@@ -136,6 +174,8 @@ class DBpediaService:
         """
         # Usar idioma configurado o inglés como fallback
         lang = self.language if self.language else "en"
+        # Escapar caracteres especiales en la consulta SPARQL
+        safe_query = query.replace('"', '\\"')
         sparql_query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -143,9 +183,15 @@ class DBpediaService:
         
         SELECT DISTINCT ?album ?name ?artist ?artistName ?releaseDate ?genre ?abstract
         WHERE {{
-            ?album a dbo:Album .
-            ?album foaf:name ?name .
-            FILTER(REGEX(?name, "{query}", "i"))
+            {{
+                ?album a dbo:Album ;
+                       foaf:name ?name .
+            }} UNION {{
+                ?album a dbo:MusicalWork ;
+                       foaf:name ?name ;
+                       dbo:recordLabel ?label .
+            }}
+            FILTER(REGEX(?name, "{safe_query}", "i"))
             
             OPTIONAL {{ 
                 ?album dbo:artist ?artist .
@@ -177,6 +223,8 @@ class DBpediaService:
         """
         # Usar idioma configurado o inglés como fallback
         lang = self.language if self.language else "en"
+        # Escapar caracteres especiales en la consulta SPARQL
+        safe_query = query.replace('"', '\\"')
         sparql_query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -184,12 +232,24 @@ class DBpediaService:
         
         SELECT DISTINCT ?song ?name ?artist ?artistName ?album ?runtime ?abstract
         WHERE {{
-            {{ ?song a dbo:Song }} UNION {{ ?song a dbo:Single }}
-            ?song foaf:name ?name .
-            FILTER(REGEX(?name, "{query}", "i"))
+            {{
+                ?song a dbo:Song ;
+                      foaf:name ?name .
+            }} UNION {{
+                ?song a dbo:Single ;
+                      foaf:name ?name .
+            }} UNION {{
+                ?song a dbo:MusicalWork ;
+                      foaf:name ?name .
+            }}
+            FILTER(REGEX(?name, "{safe_query}", "i"))
             
             OPTIONAL {{ 
                 ?song dbo:musicalArtist ?artist .
+                ?artist foaf:name ?artistName .
+            }}
+            OPTIONAL {{ 
+                ?song dbo:artist ?artist .
                 ?artist foaf:name ?artistName .
             }}
             OPTIONAL {{ ?song dbo:album ?album }}
@@ -214,21 +274,34 @@ class DBpediaService:
             limit: Número máximo de resultados por tipo
             
         Returns:
-            Lista combinada de resultados
+            Lista combinada de resultados sin duplicados
         """
         results = []
+        seen_uris = set()  # Para evitar duplicados
         
         # Buscar artistas
         artists = self.query_artists(query, limit // 3)
-        results.extend([{"type": "artist", "data": a, "source": "dbpedia_live"} for a in artists])
+        for artist in artists:
+            uri = artist.get("uri", "")
+            if uri and uri not in seen_uris:
+                results.append({"type": "artist", "data": artist, "source": "dbpedia_live"})
+                seen_uris.add(uri)
         
         # Buscar álbumes
         albums = self.query_albums(query, limit // 3)
-        results.extend([{"type": "album", "data": a, "source": "dbpedia_live"} for a in albums])
+        for album in albums:
+            uri = album.get("uri", "")
+            if uri and uri not in seen_uris:
+                results.append({"type": "album", "data": album, "source": "dbpedia_live"})
+                seen_uris.add(uri)
         
         # Buscar canciones
         songs = self.query_songs(query, limit // 3)
-        results.extend([{"type": "song", "data": s, "source": "dbpedia_live"} for s in songs])
+        for song in songs:
+            uri = song.get("uri", "")
+            if uri and uri not in seen_uris:
+                results.append({"type": "song", "data": song, "source": "dbpedia_live"})
+                seen_uris.add(uri)
         
         return results
     
@@ -344,11 +417,20 @@ class DBpediaService:
         Returns:
             Diccionario con información de la entidad
         """
+        entity_uri = binding.get(entity_type, {}).get("value", "")
+        entity_name = binding.get("name", {}).get("value", "Unknown")
+        
+        # Generar URL de DBpedia en el idioma configurado
+        if entity_uri and "dbpedia.org" in entity_uri:
+            dbpedia_url = self.transform_dbpedia_url_to_language(entity_uri)
+        else:
+            dbpedia_url = self.get_dbpedia_url(entity_name)
+        
         entity = {
-            "uri": binding.get(entity_type, {}).get("value", ""),
-            "name": binding.get("name", {}).get("value", "Unknown"),
+            "uri": entity_uri,
+            "name": entity_name,
             "type": entity_type,
-            "dbpediaUrl": self.get_dbpedia_url(binding.get("name", {}).get("value", "Unknown"))
+            "dbpediaUrl": dbpedia_url
         }
         
         # Descripción/abstract

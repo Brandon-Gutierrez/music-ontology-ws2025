@@ -38,7 +38,7 @@
         "source": {
             "local": "Ontología Local",
             "dbpedia_downloaded": "Descargado de DBpedia",
-            "dbpedia_live": "DBpedia en Vivo"
+            "dbpedia_live": "DBpedia"
         },
         "viewInDBpedia": "Ver en DBpedia"
     },
