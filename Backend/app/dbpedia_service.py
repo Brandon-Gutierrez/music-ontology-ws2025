@@ -18,24 +18,38 @@ class DBpediaService:
         "fr": "fr.dbpedia.org",
     }
     
-    def __init__(self, endpoint: str = "https://dbpedia.org/sparql", language: str = "en"):
+    def __init__(self, endpoint: str = None, language: str = "en"):
         """
         Inicializar el servicio DBpedia
         
         Args:
-            endpoint: URL del endpoint SPARQL de DBpedia
+            endpoint: URL del endpoint SPARQL de DBpedia (si es None, se genera según el idioma)
             language: Idioma para consultas (en, es, fr)
         """
-        self.endpoint = endpoint
         self.language = language
-        self.sparql = SPARQLWrapper(endpoint)
+        
+        # Si no se proporciona endpoint, generar según el idioma
+        if endpoint is None:
+            domain = self.LANGUAGE_DOMAINS.get(language, "dbpedia.org")
+            self.endpoint = f"https://{domain}/sparql"
+        else:
+            self.endpoint = endpoint
+        
+        self.sparql = SPARQLWrapper(self.endpoint)
         self.sparql.setReturnFormat(JSON)
         self.cache = {}  # Caché simple en memoria
         self.cache_ttl = 3600  # 1 hora
     
     def set_language(self, language: str):
-        """Cambiar el idioma de las consultas"""
+        """
+        Cambiar el idioma de las consultas y actualizar el endpoint SPARQL
+        """
         self.language = language
+        # Actualizar el endpoint SPARQL según el idioma
+        domain = self.LANGUAGE_DOMAINS.get(language, "dbpedia.org")
+        self.endpoint = f"https://{domain}/sparql"
+        self.sparql = SPARQLWrapper(self.endpoint)
+        self.sparql.setReturnFormat(JSON)
     
     def get_dbpedia_url(self, entity_name: str) -> str:
         """
@@ -50,7 +64,12 @@ class DBpediaService:
         domain = self.LANGUAGE_DOMAINS.get(self.language, "dbpedia.org")
         # Formatear nombre: reemplazar espacios por guiones bajos
         formatted_name = entity_name.replace(" ", "_")
-        return f"https://{domain}/page/{formatted_name}"
+        
+        # Si el idioma es inglés, usar dbpedia.org; sino, usar el subdominio de idioma
+        if self.language == "en":
+            return f"https://dbpedia.org/resource/{formatted_name}"
+        else:
+            return f"https://{domain}/resource/{formatted_name}"
     
     def transform_dbpedia_url_to_language(self, dbpedia_uri: str) -> str:
         """
