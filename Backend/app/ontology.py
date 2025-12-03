@@ -20,6 +20,8 @@ class OntologyService:
         self.local_graph = Graph()
         # Grafo para datos descargados de DBpedia
         self.downloaded_graph = Graph()
+        # Grafo combinado (se actualiza cuando se cargan ontologías)
+        self._combined_graph = None
         
         self.ontology_path = ontology_path
         self.downloaded_path = os.path.join(
@@ -56,6 +58,22 @@ class OntologyService:
                 print(f"✓ Datos descargados de DBpedia: {len(self.downloaded_graph)} triplas")
             except Exception as e:
                 print(f"⚠ No se pudieron cargar datos descargados: {str(e)}")
+        
+        # Actualizar grafo combinado
+        self._update_combined_graph()
+    
+    def _update_combined_graph(self):
+        """Actualizar el grafo combinado con ambas fuentes"""
+        self._combined_graph = Graph()
+        self._combined_graph += self.local_graph
+        self._combined_graph += self.downloaded_graph
+    
+    @property
+    def graph(self) -> Graph:
+        """Propiedad para acceder al grafo combinado"""
+        if self._combined_graph is None:
+            self._update_combined_graph()
+        return self._combined_graph
     
     def _entity_to_dict(self, uri: str, entity_type: str) -> Dict[str, Any]:
         """Convertir entidad RDF a diccionario"""
@@ -186,7 +204,8 @@ class OntologyService:
                 entity_dict = self._entity_to_dict_from_graph(artist, "artist", self.local_graph, "local")
                 results.append({
                     "type": "artist",
-                    "data": entity_dict
+                    "data": entity_dict,
+                    "source": "local"
                 })
         
         # Buscar álbumes locales
@@ -196,7 +215,8 @@ class OntologyService:
                 entity_dict = self._entity_to_dict_from_graph(album, "album", self.local_graph, "local")
                 results.append({
                     "type": "album",
-                    "data": entity_dict
+                    "data": entity_dict,
+                    "source": "local"
                 })
         
         # Buscar canciones locales
@@ -206,7 +226,8 @@ class OntologyService:
                 entity_dict = self._entity_to_dict_from_graph(song, "song", self.local_graph, "local")
                 results.append({
                     "type": "song",
-                    "data": entity_dict
+                    "data": entity_dict,
+                    "source": "local"
                 })
         
         # Buscar instrumentos locales
@@ -216,7 +237,8 @@ class OntologyService:
                 entity_dict = self._entity_to_dict_from_graph(instrument, "instrument", self.local_graph, "local")
                 results.append({
                     "type": "instrument",
-                    "data": entity_dict
+                    "data": entity_dict,
+                    "source": "local"
                 })
         
         # Buscar géneros locales
@@ -226,7 +248,8 @@ class OntologyService:
                 entity_dict = self._entity_to_dict_from_graph(genre, "genre", self.local_graph, "local")
                 results.append({
                     "type": "genre",
-                    "data": entity_dict
+                    "data": entity_dict,
+                    "source": "local"
                 })
         
         # Buscar en datos DESCARGADOS de DBpedia
@@ -237,7 +260,8 @@ class OntologyService:
                 entity_dict = self._entity_to_dict_from_graph(artist, "artist", self.downloaded_graph, "dbpedia_downloaded")
                 results.append({
                     "type": "artist",
-                    "data": entity_dict
+                    "data": entity_dict,
+                    "source": "dbpedia_downloaded"
                 })
         
         # Buscar álbumes descargados
@@ -247,7 +271,8 @@ class OntologyService:
                 entity_dict = self._entity_to_dict_from_graph(album, "album", self.downloaded_graph, "dbpedia_downloaded")
                 results.append({
                     "type": "album",
-                    "data": entity_dict
+                    "data": entity_dict,
+                    "source": "dbpedia_downloaded"
                 })
         
         # Buscar canciones descargadas
@@ -257,7 +282,8 @@ class OntologyService:
                 entity_dict = self._entity_to_dict_from_graph(song, "song", self.downloaded_graph, "dbpedia_downloaded")
                 results.append({
                     "type": "song",
-                    "data": entity_dict
+                    "data": entity_dict,
+                    "source": "dbpedia_downloaded"
                 })
         
         return results
@@ -365,50 +391,105 @@ class OntologyService:
     def get_all_artists(self) -> List[Dict[str, Any]]:
         """Obtener todos los artistas"""
         artists = []
-        for artist in self.graph.subjects(self.RDF.type, self.MUSIC.Artist):
+        # Artistas locales
+        for artist in self.local_graph.subjects(self.RDF.type, self.MUSIC.Artist):
+            entity_dict = self._entity_to_dict_from_graph(artist, "artist", self.local_graph, "local")
             artists.append({
                 "type": "artist",
-                "data": self._entity_to_dict(artist, "artist")
+                "data": entity_dict,
+                "source": "local"
+            })
+        # Artistas descargados
+        for artist in self.downloaded_graph.subjects(self.RDF.type, self.MUSIC.Artist):
+            entity_dict = self._entity_to_dict_from_graph(artist, "artist", self.downloaded_graph, "dbpedia_downloaded")
+            artists.append({
+                "type": "artist",
+                "data": entity_dict,
+                "source": "dbpedia_downloaded"
             })
         return artists
     
     def get_all_albums(self) -> List[Dict[str, Any]]:
         """Obtener todos los álbumes"""
         albums = []
-        for album in self.graph.subjects(self.RDF.type, self.MUSIC.Album):
+        # Álbumes locales
+        for album in self.local_graph.subjects(self.RDF.type, self.MUSIC.Album):
+            entity_dict = self._entity_to_dict_from_graph(album, "album", self.local_graph, "local")
             albums.append({
                 "type": "album",
-                "data": self._entity_to_dict(album, "album")
+                "data": entity_dict,
+                "source": "local"
+            })
+        # Álbumes descargados
+        for album in self.downloaded_graph.subjects(self.RDF.type, self.MUSIC.Album):
+            entity_dict = self._entity_to_dict_from_graph(album, "album", self.downloaded_graph, "dbpedia_downloaded")
+            albums.append({
+                "type": "album",
+                "data": entity_dict,
+                "source": "dbpedia_downloaded"
             })
         return albums
     
     def get_all_songs(self) -> List[Dict[str, Any]]:
         """Obtener todas las canciones"""
         songs = []
-        for song in self.graph.subjects(self.RDF.type, self.MUSIC.Song):
+        # Canciones locales
+        for song in self.local_graph.subjects(self.RDF.type, self.MUSIC.Song):
+            entity_dict = self._entity_to_dict_from_graph(song, "song", self.local_graph, "local")
             songs.append({
                 "type": "song",
-                "data": self._entity_to_dict(song, "song")
+                "data": entity_dict,
+                "source": "local"
+            })
+        # Canciones descargadas
+        for song in self.downloaded_graph.subjects(self.RDF.type, self.MUSIC.Song):
+            entity_dict = self._entity_to_dict_from_graph(song, "song", self.downloaded_graph, "dbpedia_downloaded")
+            songs.append({
+                "type": "song",
+                "data": entity_dict,
+                "source": "dbpedia_downloaded"
             })
         return songs
     
     def get_all_instruments(self) -> List[Dict[str, Any]]:
         """Obtener todos los instrumentos"""
         instruments = []
-        for instrument in self.graph.subjects(self.RDF.type, self.MUSIC.Instrument):
+        # Instrumentos locales
+        for instrument in self.local_graph.subjects(self.RDF.type, self.MUSIC.Instrument):
+            entity_dict = self._entity_to_dict_from_graph(instrument, "instrument", self.local_graph, "local")
             instruments.append({
                 "type": "instrument",
-                "data": self._entity_to_dict(instrument, "instrument")
+                "data": entity_dict,
+                "source": "local"
+            })
+        # Instrumentos descargados
+        for instrument in self.downloaded_graph.subjects(self.RDF.type, self.MUSIC.Instrument):
+            entity_dict = self._entity_to_dict_from_graph(instrument, "instrument", self.downloaded_graph, "dbpedia_downloaded")
+            instruments.append({
+                "type": "instrument",
+                "data": entity_dict,
+                "source": "dbpedia_downloaded"
             })
         return instruments
     
     def get_all_genres(self) -> List[Dict[str, Any]]:
         """Obtener todos los géneros"""
         genres = []
-        for genre in self.graph.subjects(self.RDF.type, self.MUSIC.Genre):
+        # Géneros locales
+        for genre in self.local_graph.subjects(self.RDF.type, self.MUSIC.Genre):
+            entity_dict = self._entity_to_dict_from_graph(genre, "genre", self.local_graph, "local")
             genres.append({
                 "type": "genre",
-                "data": self._entity_to_dict(genre, "genre")
+                "data": entity_dict,
+                "source": "local"
+            })
+        # Géneros descargados
+        for genre in self.downloaded_graph.subjects(self.RDF.type, self.MUSIC.Genre):
+            entity_dict = self._entity_to_dict_from_graph(genre, "genre", self.downloaded_graph, "dbpedia_downloaded")
+            genres.append({
+                "type": "genre",
+                "data": entity_dict,
+                "source": "dbpedia_downloaded"
             })
         return genres
     
@@ -539,10 +620,10 @@ class OntologyService:
     
     def reload_ontology(self):
         """Recargar la ontología desde el archivo (útil después de enriquecer)"""
-        self.graph = Graph()
-        self.graph.bind("music", self.MUSIC)
-        self.graph.bind("rdf", RDF)
-        self.graph.bind("rdfs", RDFS)
+        self.local_graph = Graph()
+        self.local_graph.bind("music", self.MUSIC)
+        self.local_graph.bind("rdf", RDF)
+        self.local_graph.bind("rdfs", RDFS)
         self._load_ontology()
     
     def get_ontology_stats(self) -> Dict[str, int]:
