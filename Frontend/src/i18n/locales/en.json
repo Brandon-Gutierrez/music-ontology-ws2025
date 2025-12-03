@@ -71,8 +71,7 @@
         "label": "Language",
         "en": "English",
         "es": "Spanish",
-        "fr": "French",
-        "de": "German"
+        "fr": "French"
     },
     "errors": {
         "emptySearch": "Please enter a search term",

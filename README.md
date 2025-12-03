@@ -2,7 +2,7 @@
 
 Aplicación web moderna con búsqueda semántica en ontología RDF/OWL de música, con soporte multiidioma y dos modos de operación: **offline** (local) y **online** (DBpedia en vivo).
 
-**Versión**: 4.0 | **Status**: ✅ Producción | **Idiomas**: 4 (EN, ES, FR, DE)
+**Versión**: 4.0 | **Status**: ✅ Producción | **Idiomas**: 3 (EN, ES, FR)
 
 ---
 
@@ -10,7 +10,7 @@ Aplicación web moderna con búsqueda semántica en ontología RDF/OWL de músic
 
 ✅ **Búsqueda Offline**: Rápida sin internet (ontología local + DBpedia descargado)  
 ✅ **Búsqueda Online**: Enriquecida en vivo con DBpedia  
-✅ **Multiidioma**: Interfaz + URLs de DBpedia adaptadas (EN/ES/FR/DE)  
+✅ **Multiidioma**: Interfaz + URLs de DBpedia adaptadas (EN/ES/FR)  
 ✅ **Diferenciación Visual**: Colores distintos por fuente de datos  
 ✅ **URLs Inteligentes**: Botones a DBpedia con dominio según idioma  
 ✅ **Deduplicación Automática**: Sin resultados duplicados  

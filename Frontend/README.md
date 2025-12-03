@@ -2,7 +2,7 @@
 
 Interfaz web moderna construida con React + TypeScript para búsquedas semánticas en ontología de música con soporte multiidioma.
 
-**Versión**: 4.0 | **Status**: ✅ Producción | **Idiomas**: 4 (EN, ES, FR, DE) | **Modo**: Offline/Online
+**Versión**: 4.0 | **Status**: ✅ Producción | **Idiomas**: 3 (EN, ES, FR) | **Modo**: Offline/Online
 
 ---
 
@@ -93,8 +93,7 @@ src/
 │   └── locales/
 │       ├── en.json
 │       ├── es.json
-│       ├── fr.json
-│       └── de.json
+│       └── fr.json
 │
 ├── styles/
 │   └── *.module.css            # Estilos CSS Modules
@@ -113,7 +112,7 @@ src/
 
 ✅ **Búsqueda Offline**: Rápida sin internet  
 ✅ **Búsqueda Online**: Enriquecida con DBpedia  
-✅ **Multiidioma**: EN/ES/FR/DE con traductor  
+✅ **Multiidioma**: EN/ES/FR con traductor  
 ✅ **Modo Oscuro**: Tema automático  
 ✅ **Responsive**: Adaptable a dispositivos  
 ✅ **URLs Inteligentes**: Botones a DBpedia por idioma  
@@ -133,7 +132,7 @@ src/
 ### Búsqueda Online
 
 1. Selecciona "Online" en la barra de búsqueda
-2. Elige el idioma (EN/ES/FR/DE)
+2. Elige el idioma (EN/ES/FR)
 3. Escribe el término
 4. Presiona Enter
 

@@ -53,7 +53,7 @@ npm run dev
 ### Modo Online
 
 1. Selecciona "Online"
-2. Elige idioma (EN/ES/FR/DE)
+2. Elige idioma (EN/ES/FR)
 3. Busca: "beatles", "taylor swift", "miles davis"
 4. Resultados con enlace a DBpedia en el idioma seleccionado
 

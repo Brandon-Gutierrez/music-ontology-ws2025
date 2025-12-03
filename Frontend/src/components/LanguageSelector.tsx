@@ -8,7 +8,6 @@ const LANGUAGES: { code: SupportedLanguage; name: string }[] = [
     { code: 'en', name: 'English' },
     { code: 'es', name: 'Español' },
     { code: 'fr', name: 'Français' },
-    { code: 'de', name: 'Deutsch' },
 ];
 
 export const LanguageSelector: React.FC = () => {

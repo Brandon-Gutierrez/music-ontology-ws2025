@@ -5,7 +5,6 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 import en from './locales/en.json';
 import es from './locales/es.json';
 import fr from './locales/fr.json';
-import de from './locales/de.json';
 
 // Configuración de i18next
 i18n
@@ -16,10 +15,9 @@ i18n
             en: { translation: en },
             es: { translation: es },
             fr: { translation: fr },
-            de: { translation: de },
         },
         fallbackLng: 'es', // Idioma por defecto
-        supportedLngs: ['en', 'es', 'fr', 'de'],
+        supportedLngs: ['en', 'es', 'fr'],
         interpolation: {
             escapeValue: false, // React ya escapa por defecto
         },

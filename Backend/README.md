@@ -2,7 +2,7 @@
 
 API REST basada en FastAPI que proporciona búsqueda semántica en ontología RDF/OWL de música. Soporta búsqueda en **modo offline** (local + datos descargados) y **modo online** (DBpedia en vivo).
 
-**Versión**: 4.0 | **Status**: ✅ Producción | **Endpoints**: 22 | **Idiomas**: 4 (EN, ES, FR, DE)
+**Versión**: 4.0 | **Status**: ✅ Producción | **Endpoints**: 22 | **Idiomas**: 3 (EN, ES, FR)
 
 ---
 
@@ -84,7 +84,7 @@ curl "http://127.0.0.1:8000/api/search?q=beatles&mode=online&lang=en"
 ```
 
 **Parámetros**:
-- `lang`: `en` | `es` | `fr` | `de` (DBpedia URL será del idioma indicado)
+- `lang`: `en` | `es` | `fr` (DBpedia URL será del idioma indicado)
 
 ### Búsqueda por Tipo
 
@@ -134,7 +134,7 @@ requirements.txt             # Dependencias
 
 ✅ **Modo Offline**: Búsqueda rápida sin internet  
 ✅ **Modo Online**: Enriquecimiento con DBpedia Live  
-✅ **Multiidioma**: Soporte EN/ES/FR/DE  
+✅ **Multiidioma**: Soporte EN/ES/FR  
 ✅ **URLs Inteligentes**: DBpedia URLs adaptan idioma  
 ✅ **Deduplicación**: Automática en modo online  
 ✅ **CORS Habilitado**: Listo para frontend  

@@ -2,7 +2,7 @@
 
 export type SearchMode = 'offline' | 'online';
 export type DataSource = 'local' | 'dbpedia_downloaded' | 'dbpedia_live';
-export type SupportedLanguage = 'en' | 'es' | 'fr' | 'de';
+export type SupportedLanguage = 'en' | 'es' | 'fr';
 
 export interface Artist {
   uri: string;

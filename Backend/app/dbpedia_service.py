@@ -16,7 +16,6 @@ class DBpediaService:
         "en": "dbpedia.org",
         "es": "es.dbpedia.org",
         "fr": "fr.dbpedia.org",
-        "de": "de.dbpedia.org",
     }
     
     def __init__(self, endpoint: str = "https://dbpedia.org/sparql", language: str = "en"):
@@ -25,7 +24,7 @@ class DBpediaService:
         
         Args:
             endpoint: URL del endpoint SPARQL de DBpedia
-            language: Idioma para consultas (en, es, fr, de)
+            language: Idioma para consultas (en, es, fr)
         """
         self.endpoint = endpoint
         self.language = language
