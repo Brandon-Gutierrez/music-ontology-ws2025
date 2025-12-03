@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Search, Users, Disc3, Music, Zap, Tag, Database, Globe, Zap as Lightning } from 'lucide-react';
+import { Search, Users, Disc3, Music, Zap, Tag, Database, Globe } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import styles from '../styles/SearchBar.module.css';
 import type { SearchMode } from '../types';
 
@@ -20,6 +21,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchMode, setSearchMode] = useState<SearchMode>('offline');
+  const { t } = useTranslation();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,18 +31,17 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
   };
 
   const filterOptions: FilterOption[] = [
-    { value: 'all', label: 'Todos', icon: <Search size={18} /> },
-    { value: 'artist', label: 'Artistas', icon: <Users size={18} /> },
-    { value: 'album', label: 'Álbumes', icon: <Disc3 size={18} /> },
-    { value: 'song', label: 'Canciones', icon: <Music size={18} /> },
-    { value: 'instrument', label: 'Instrumentos', icon: <Zap size={18} /> },
-    { value: 'genre', label: 'Géneros', icon: <Tag size={18} /> },
+    { value: 'all', label: t('search.filter.all'), icon: <Search size={18} /> },
+    { value: 'artist', label: t('search.filter.artist'), icon: <Users size={18} /> },
+    { value: 'album', label: t('search.filter.album'), icon: <Disc3 size={18} /> },
+    { value: 'song', label: t('search.filter.song'), icon: <Music size={18} /> },
+    { value: 'instrument', label: t('search.filter.instrument'), icon: <Zap size={18} /> },
+    { value: 'genre', label: t('search.filter.genre'), icon: <Tag size={18} /> },
   ];
 
   const modeOptions = [
-    { value: 'offline' as SearchMode, label: 'Local', icon: <Database size={16} />, tooltip: 'Búsqueda en ontología local' },
-    { value: 'online' as SearchMode, label: 'DBpedia', icon: <Globe size={16} />, tooltip: 'Búsqueda en DBpedia (online)' },
-    { value: 'hybrid' as SearchMode, label: 'Híbrido', icon: <Lightning size={16} />, tooltip: 'Búsqueda combinada (local + DBpedia)' },
+    { value: 'offline' as SearchMode, label: t('search.mode.offline'), icon: <Database size={16} />, tooltip: t('search.mode.offlineTooltip') },
+    { value: 'online' as SearchMode, label: t('search.mode.online'), icon: <Globe size={16} />, tooltip: t('search.mode.onlineTooltip') },
   ];
 
   return (
@@ -50,7 +51,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
           <input
             type="text"
             className={styles['search-input']}
-            placeholder="Busca artistas, álbumes, canciones..."
+            placeholder={t('search.placeholder')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             disabled={isLoading}
@@ -60,14 +61,14 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch, isLoading }) => 
             className={styles['search-button']}
             disabled={isLoading || !query.trim()}
           >
-            {isLoading ? 'Buscando...' : 'Buscar'}
+            {isLoading ? t('search.searching') : t('search.button')}
           </button>
         </div>
       </form>
 
       {/* Modo de búsqueda */}
       <div className={styles['mode-selector']}>
-        <span className={styles['mode-label']}>Modo:</span>
+        <span className={styles['mode-label']}>{t('search.mode.label')}</span>
         {modeOptions.map((mode) => (
           <button
             key={mode.value}

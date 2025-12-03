@@ -11,18 +11,47 @@ from datetime import datetime, timedelta
 class DBpediaService:
     """Servicio para consultar DBpedia mediante SPARQL"""
     
-    def __init__(self, endpoint: str = "https://dbpedia.org/sparql"):
+    # Mapeo de idiomas a subdominios de DBpedia
+    LANGUAGE_DOMAINS = {
+        "en": "dbpedia.org",
+        "es": "es.dbpedia.org",
+        "fr": "fr.dbpedia.org",
+        "de": "de.dbpedia.org",
+    }
+    
+    def __init__(self, endpoint: str = "https://dbpedia.org/sparql", language: str = "en"):
         """
         Inicializar el servicio DBpedia
         
         Args:
             endpoint: URL del endpoint SPARQL de DBpedia
+            language: Idioma para consultas (en, es, fr, de)
         """
         self.endpoint = endpoint
+        self.language = language
         self.sparql = SPARQLWrapper(endpoint)
         self.sparql.setReturnFormat(JSON)
         self.cache = {}  # Caché simple en memoria
         self.cache_ttl = 3600  # 1 hora
+    
+    def set_language(self, language: str):
+        """Cambiar el idioma de las consultas"""
+        self.language = language
+    
+    def get_dbpedia_url(self, entity_name: str) -> str:
+        """
+        Generar URL de DBpedia según el idioma configurado
+        
+        Args:
+            entity_name: Nombre de la entidad
+            
+        Returns:
+            URL de DBpedia en el idioma correspondiente
+        """
+        domain = self.LANGUAGE_DOMAINS.get(self.language, "dbpedia.org")
+        # Formatear nombre: reemplazar espacios por guiones bajos
+        formatted_name = entity_name.replace(" ", "_")
+        return f"https://{domain}/page/{formatted_name}"
         
     def _execute_sparql(self, query: str, use_cache: bool = True) -> Dict[str, Any]:
         """
@@ -66,6 +95,8 @@ class DBpediaService:
         Returns:
             Lista de artistas encontrados
         """
+        # Usar idioma configurado o inglés como fallback
+        lang = self.language if self.language else "en"
         sparql_query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -75,12 +106,11 @@ class DBpediaService:
         WHERE {{
             ?artist a dbo:MusicalArtist .
             ?artist foaf:name ?name .
-            FILTER(LANG(?name) = "en" || LANG(?name) = "")
             FILTER(REGEX(?name, "{query}", "i"))
             
             OPTIONAL {{ 
                 ?artist dbo:abstract ?abstract .
-                FILTER(LANG(?abstract) = "en")
+                FILTER(LANG(?abstract) = "{lang}")
             }}
             OPTIONAL {{ ?artist dbo:birthPlace ?birthPlace }}
             OPTIONAL {{ ?artist dbo:genre ?genre }}
@@ -104,6 +134,8 @@ class DBpediaService:
         Returns:
             Lista de álbumes encontrados
         """
+        # Usar idioma configurado o inglés como fallback
+        lang = self.language if self.language else "en"
         sparql_query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -113,7 +145,6 @@ class DBpediaService:
         WHERE {{
             ?album a dbo:Album .
             ?album foaf:name ?name .
-            FILTER(LANG(?name) = "en" || LANG(?name) = "")
             FILTER(REGEX(?name, "{query}", "i"))
             
             OPTIONAL {{ 
@@ -124,7 +155,7 @@ class DBpediaService:
             OPTIONAL {{ ?album dbo:genre ?genre }}
             OPTIONAL {{ 
                 ?album dbo:abstract ?abstract .
-                FILTER(LANG(?abstract) = "en")
+                FILTER(LANG(?abstract) = "{lang}")
             }}
         }}
         LIMIT {limit}
@@ -144,6 +175,8 @@ class DBpediaService:
         Returns:
             Lista de canciones encontradas
         """
+        # Usar idioma configurado o inglés como fallback
+        lang = self.language if self.language else "en"
         sparql_query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -153,7 +186,6 @@ class DBpediaService:
         WHERE {{
             {{ ?song a dbo:Song }} UNION {{ ?song a dbo:Single }}
             ?song foaf:name ?name .
-            FILTER(LANG(?name) = "en" || LANG(?name) = "")
             FILTER(REGEX(?name, "{query}", "i"))
             
             OPTIONAL {{ 
@@ -164,7 +196,7 @@ class DBpediaService:
             OPTIONAL {{ ?song dbo:runtime ?runtime }}
             OPTIONAL {{ 
                 ?song dbo:abstract ?abstract .
-                FILTER(LANG(?abstract) = "en")
+                FILTER(LANG(?abstract) = "{lang}")
             }}
         }}
         LIMIT {limit}
@@ -188,15 +220,15 @@ class DBpediaService:
         
         # Buscar artistas
         artists = self.query_artists(query, limit // 3)
-        results.extend([{"type": "artist", "data": a, "source": "dbpedia"} for a in artists])
+        results.extend([{"type": "artist", "data": a, "source": "dbpedia_live"} for a in artists])
         
         # Buscar álbumes
         albums = self.query_albums(query, limit // 3)
-        results.extend([{"type": "album", "data": a, "source": "dbpedia"} for a in albums])
+        results.extend([{"type": "album", "data": a, "source": "dbpedia_live"} for a in albums])
         
         # Buscar canciones
         songs = self.query_songs(query, limit // 3)
-        results.extend([{"type": "song", "data": s, "source": "dbpedia"} for s in songs])
+        results.extend([{"type": "song", "data": s, "source": "dbpedia_live"} for s in songs])
         
         return results
     
@@ -315,7 +347,8 @@ class DBpediaService:
         entity = {
             "uri": binding.get(entity_type, {}).get("value", ""),
             "name": binding.get("name", {}).get("value", "Unknown"),
-            "type": entity_type
+            "type": entity_type,
+            "dbpediaUrl": self.get_dbpedia_url(binding.get("name", {}).get("value", "Unknown"))
         }
         
         # Descripción/abstract

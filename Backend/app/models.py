@@ -18,15 +18,15 @@ class EntityType(str, Enum):
 
 class SearchMode(str, Enum):
     """Modos de búsqueda disponibles"""
-    OFFLINE = "offline"  # Solo búsqueda local
-    ONLINE = "online"    # Solo DBpedia
-    HYBRID = "hybrid"    # Local + DBpedia
+    OFFLINE = "offline"  # Búsqueda local + datos descargados de DBpedia
+    ONLINE = "online"    # Solo consultas en vivo a DBpedia
 
 
 class DataSource(str, Enum):
     """Fuente de los datos"""
-    LOCAL = "local"
-    DBPEDIA = "dbpedia"
+    LOCAL = "local"  # Ontología local
+    DBPEDIA_DOWNLOADED = "dbpedia_downloaded"  # Datos descargados de DBpedia a la ontología
+    DBPEDIA_LIVE = "dbpedia_live"  # Consulta en vivo a DBpedia
 
 
 class Artist(BaseModel):
@@ -36,6 +36,7 @@ class Artist(BaseModel):
     type: str = "artist"
     description: Optional[str] = None
     genre: Optional[str] = None
+    dbpediaUrl: Optional[str] = None  # URL de DBpedia según idioma
 
 
 class Album(BaseModel):
@@ -46,6 +47,7 @@ class Album(BaseModel):
     description: Optional[str] = None
     releaseYear: Optional[int] = None
     genre: Optional[str] = None
+    dbpediaUrl: Optional[str] = None  # URL de DBpedia según idioma
 
 
 class Instrument(BaseModel):
@@ -66,6 +68,7 @@ class Song(BaseModel):
     releaseYear: Optional[int] = None
     artist: Optional[str] = None
     instruments: Optional[List[Instrument]] = None
+    dbpediaUrl: Optional[str] = None  # URL de DBpedia según idioma
 
 
 class Genre(BaseModel):

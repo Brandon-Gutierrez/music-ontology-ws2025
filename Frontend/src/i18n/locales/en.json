@@ -1,0 +1,82 @@
+{
+    "app": {
+        "title": "Semantic Music Search",
+        "subtitle": "Musical Ontology Explorer",
+        "description": "Discover artists, albums, songs, instruments and genres through intelligent search"
+    },
+    "header": {
+        "status": {
+            "connected": "Connected",
+            "disconnected": "Disconnected",
+            "backendWarning": "Make sure the backend server is running"
+        }
+    },
+    "search": {
+        "placeholder": "Search for artists, albums, songs...",
+        "button": "Search",
+        "searching": "Searching...",
+        "mode": {
+            "label": "Mode:",
+            "offline": "Offline",
+            "online": "Online",
+            "offlineTooltip": "Search in local ontology and downloaded data",
+            "onlineTooltip": "Live search on DBpedia"
+        },
+        "filter": {
+            "all": "All",
+            "artist": "Artists",
+            "album": "Albums",
+            "song": "Songs",
+            "instrument": "Instruments",
+            "genre": "Genres"
+        }
+    },
+    "results": {
+        "noResults": "No results found",
+        "noSearch": "Enter a search term to begin",
+        "searching": "Searching...",
+        "source": {
+            "local": "Local Ontology",
+            "dbpedia_downloaded": "Downloaded from DBpedia",
+            "dbpedia_live": "DBpedia Live"
+        },
+        "viewInDBpedia": "View in DBpedia"
+    },
+    "entity": {
+        "artist": "Artist",
+        "album": "Album",
+        "song": "Song",
+        "instrument": "Instrument",
+        "genre": "Genre"
+    },
+    "properties": {
+        "description": "Description",
+        "nationality": "Nationality",
+        "birthYear": "Birth",
+        "activeYears": "Active years",
+        "trajectory": "Trajectory",
+        "discography": "Discography",
+        "awards": "Awards",
+        "genre": "Genre",
+        "releaseYear": "Release year",
+        "duration": "Duration",
+        "language": "Language",
+        "composers": "Composers",
+        "lyricist": "Lyricist",
+        "lyrics": "Lyrics",
+        "instruments": "Instruments",
+        "type": "Type"
+    },
+    "language": {
+        "label": "Language",
+        "en": "English",
+        "es": "Spanish",
+        "fr": "French",
+        "de": "German"
+    },
+    "errors": {
+        "emptySearch": "Please enter a search term",
+        "noResultsFor": "No results found for \"{{query}}\" in the {{filter}} category (mode: {{mode}})",
+        "apiConnection": "Error connecting to the API. Make sure the backend server is running."
+    }
+}

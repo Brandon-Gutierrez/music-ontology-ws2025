@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './App.css';
 import { Header } from './components/Header';
 import { SearchBar } from './components/SearchBar';
@@ -12,6 +13,7 @@ function App() {
   const [error, setError] = useState<string | undefined>();
   const [hasSearched, setHasSearched] = useState(false);
   const [apiStatus, setApiStatus] = useState<boolean | undefined>();
+  const { i18n, t } = useTranslation();
 
   // Verificar estado de la API al cargar
   useEffect(() => {
@@ -37,14 +39,14 @@ function App() {
       let searchResults: SearchResult[] = [];
 
       if (!query.trim()) {
-        setError('Por favor ingresa un término de búsqueda');
+        setError(t('errors.emptySearch'));
         setResults([]);
         setIsLoading(false);
         return;
       }
 
-      // Búsqueda con modo seleccionado (offline/online/hybrid)
-      searchResults = await apiService.searchWithMode(query, mode);
+      // Búsqueda con modo seleccionado y idioma actual
+      searchResults = await apiService.searchWithMode(query, mode, i18n.language);
 
       // Aplicar filtro si no es "all"
       if (filter !== 'all') {
@@ -58,7 +60,7 @@ function App() {
       setResults(searchResults);
     } catch (err) {
       const message =
-        err instanceof Error ? err.message : 'Error al conectar con la API. Verifica que el servidor backend esté en ejecución.';
+        err instanceof Error ? err.message : t('errors.apiConnection');
       setError(message);
       setResults([]);
     } finally {

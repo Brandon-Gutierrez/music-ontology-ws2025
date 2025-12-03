@@ -1,0 +1,40 @@
+.languageSelector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    transition: all 0.2s ease;
+}
+
+.languageSelector:hover {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.3);
+}
+
+.icon {
+    color: #10b981;
+    flex-shrink: 0;
+}
+
+.select {
+    background: transparent;
+    color: #e5e7eb;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0;
+}
+
+.select option {
+    background: #1f2937;
+    color: #e5e7eb;
+}
+
+.select:focus {
+    outline: none;
+}

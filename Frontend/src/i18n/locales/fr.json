@@ -1,0 +1,82 @@
+{
+    "app": {
+        "title": "Recherche Sémantique de Musique",
+        "subtitle": "Explorateur d'Ontologie Musicale",
+        "description": "Découvrez des artistes, des albums, des chansons, des instruments et des genres grâce à une recherche intelligente"
+    },
+    "header": {
+        "status": {
+            "connected": "Connecté",
+            "disconnected": "Déconnecté",
+            "backendWarning": "Assurez-vous que le serveur backend est en cours d'exécution"
+        }
+    },
+    "search": {
+        "placeholder": "Recherchez des artistes, des albums, des chansons...",
+        "button": "Rechercher",
+        "searching": "Recherche en cours...",
+        "mode": {
+            "label": "Mode:",
+            "offline": "Hors ligne",
+            "online": "En ligne",
+            "offlineTooltip": "Recherche dans l'ontologie locale et les données téléchargées",
+            "onlineTooltip": "Recherche en direct sur DBpedia"
+        },
+        "filter": {
+            "all": "Tous",
+            "artist": "Artistes",
+            "album": "Albums",
+            "song": "Chansons",
+            "instrument": "Instruments",
+            "genre": "Genres"
+        }
+    },
+    "results": {
+        "noResults": "Aucun résultat trouvé",
+        "noSearch": "Entrez un terme de recherche pour commencer",
+        "searching": "Recherche en cours...",
+        "source": {
+            "local": "Ontologie Locale",
+            "dbpedia_downloaded": "Téléchargé de DBpedia",
+            "dbpedia_live": "DBpedia en Direct"
+        },
+        "viewInDBpedia": "Voir dans DBpedia"
+    },
+    "entity": {
+        "artist": "Artiste",
+        "album": "Album",
+        "song": "Chanson",
+        "instrument": "Instrument",
+        "genre": "Genre"
+    },
+    "properties": {
+        "description": "Description",
+        "nationality": "Nationalité",
+        "birthYear": "Naissance",
+        "activeYears": "Années actives",
+        "trajectory": "Trajectoire",
+        "discography": "Discographie",
+        "awards": "Récompenses",
+        "genre": "Genre",
+        "releaseYear": "Année de sortie",
+        "duration": "Durée",
+        "language": "Langue",
+        "composers": "Compositeurs",
+        "lyricist": "Parolier",
+        "lyrics": "Paroles",
+        "instruments": "Instruments",
+        "type": "Type"
+    },
+    "language": {
+        "label": "Langue",
+        "en": "Anglais",
+        "es": "Espagnol",
+        "fr": "Français",
+        "de": "Allemand"
+    },
+    "errors": {
+        "emptySearch": "Veuillez entrer un terme de recherche",
+        "noResultsFor": "Aucun résultat trouvé pour \"{{query}}\" dans la catégorie {{filter}} (mode: {{mode}})",
+        "apiConnection": "Erreur de connexion à l'API. Assurez-vous que le serveur backend est en cours d'exécution."
+    }
+}

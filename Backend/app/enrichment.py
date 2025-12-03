@@ -330,8 +330,10 @@ class OntologyEnrichment:
     
     def _add_artist_to_graph(self, artist_uri: URIRef, artist_data: Dict[str, Any]):
         """Agregar artista al grafo RDF"""
-        self.graph.add((artist_uri, RDF.type, self. MUSIC.Artist))
+        self.graph.add((artist_uri, RDF.type, self.MUSIC.Artist))
         self.graph.add((artist_uri, self.MUSIC.name, Literal(artist_data["name"])))
+        # Marcar como dato descargado de DBpedia
+        self.graph.add((artist_uri, self.MUSIC.dataSource, Literal("dbpedia_downloaded")))
         
         if "description" in artist_data:
             self.graph.add((artist_uri, self.MUSIC.description, Literal(artist_data["description"])))
@@ -360,11 +362,15 @@ class OntologyEnrichment:
         """Agregar artista simple (solo nombre) al grafo"""
         self.graph.add((artist_uri, RDF.type, self.MUSIC.Artist))
         self.graph.add((artist_uri, self.MUSIC.name, Literal(artist_name)))
+        # Marcar como dato descargado de DBpedia
+        self.graph.add((artist_uri, self.MUSIC.dataSource, Literal("dbpedia_downloaded")))
     
     def _add_album_to_graph(self, album_uri: URIRef, album_data: Dict[str, Any], artist_uri: Optional[URIRef] = None):
         """Agregar álbum al grafo RDF"""
         self.graph.add((album_uri, RDF.type, self.MUSIC.Album))
         self.graph.add((album_uri, self.MUSIC.name, Literal(album_data["name"])))
+        # Marcar como dato descargado de DBpedia
+        self.graph.add((album_uri, self.MUSIC.dataSource, Literal("dbpedia_downloaded")))
         
         if "description" in album_data:
             self.graph.add((album_uri, self.MUSIC.description, Literal(album_data["description"])))
@@ -387,6 +393,8 @@ class OntologyEnrichment:
         """Agregar canción al grafo RDF"""
         self.graph.add((song_uri, RDF.type, self.MUSIC.Song))
         self.graph.add((song_uri, self.MUSIC.name, Literal(song_data["name"])))
+        # Marcar como dato descargado de DBpedia
+        self.graph.add((song_uri, self.MUSIC.dataSource, Literal("dbpedia_downloaded")))
         
         if "description" in song_data:
             self.graph.add((song_uri, self.MUSIC.description, Literal(song_data["description"])))

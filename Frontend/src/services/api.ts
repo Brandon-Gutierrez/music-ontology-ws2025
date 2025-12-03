@@ -36,12 +36,12 @@ export const apiService = {
     }
   },
 
-  // Nueva búsqueda con modo (offline/online/hybrid)
-  searchWithMode: async (query: string, mode: SearchMode = 'offline'): Promise<SearchResult[]> => {
+  // Nueva búsqueda con modo (offline/online) y lenguaje
+  searchWithMode: async (query: string, mode: SearchMode = 'offline', language: string = 'en'): Promise<SearchResult[]> => {
     try {
       const response = await api.get<ApiResponse<SearchResult[]>>(
         '/api/search',
-        { params: { q: query, mode } }
+        { params: { q: query, mode, lang: language } }
       );
       return response.data.data;
     } catch (error) {
@@ -62,7 +62,7 @@ export const apiService = {
   },
 
   // Enriquecimiento en lote
-  enrichBatch: async (entities: Array<{type: string, name: string, artist?: string}>): Promise<EnrichmentResponse> => {
+  enrichBatch: async (entities: Array<{ type: string, name: string, artist?: string }>): Promise<EnrichmentResponse> => {
     try {
       const response = await api.post<EnrichmentResponse>('/api/enrich/batch', { entities });
       return response.data;

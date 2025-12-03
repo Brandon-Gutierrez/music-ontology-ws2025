@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+   xmlns:music="http://example.org/music-ontology#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Adele">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Artist"/>
+    <music:name>Madeleine Roger</music:name>
+    <music:activeYears>2016</music:activeYears>
+    <music:genre>Folk music</music:genre>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Bohemian_Rhapsody">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Song"/>
+    <music:name>Bohemian Rhapsody</music:name>
+    <music:duration rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">355</music:duration>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/21">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Album"/>
+    <music:name>21st Century Boy</music:name>
+    <music:releaseYear rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1986</music:releaseYear>
+    <music:genre>New wave music</music:genre>
+    <music:artist>Sigue Sigue Sputnik</music:artist>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Imagine">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Song"/>
+    <music:name>If I Ruled the World (Imagine That)</music:name>
+    <music:duration rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">282</music:duration>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Queen">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Artist"/>
+    <music:name>Regina "Queen" Saraiva</music:name>
+    <music:activeYears>1995</music:activeYears>
+    <music:genre>Dance music</music:genre>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Hey_Jude">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Song"/>
+    <music:name>Hey Jude</music:name>
+    <music:duration rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">432</music:duration>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Madonna">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Artist"/>
+    <music:name>Madonna Wayne Gacy</music:name>
+    <music:activeYears>1989</music:activeYears>
+    <music:genre>Industrial rock</music:genre>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Viva_la_Vida">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Song"/>
+    <music:name>Viva la Vida</music:name>
+    <music:duration rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">225</music:duration>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Billie_Jean">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Song"/>
+    <music:name>Billie Jean</music:name>
+    <music:duration rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">292</music:duration>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Hello">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Song"/>
+    <music:name>Hello Hi</music:name>
+    <music:duration rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">178</music:duration>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Stairway_to_Heaven">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Song"/>
+    <music:name>Stairway to Heaven</music:name>
+    <music:duration rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">155</music:duration>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://dbpedia.org/resource/Hotel_California">
+    <rdf:type rdf:resource="http://example.org/music-ontology#Song"/>
+    <music:name>Hotel California</music:name>
+    <music:duration rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">369</music:duration>
+  </rdf:Description>
+</rdf:RDF>

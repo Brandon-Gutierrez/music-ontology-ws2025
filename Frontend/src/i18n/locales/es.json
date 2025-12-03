@@ -1,0 +1,82 @@
+{
+    "app": {
+        "title": "Buscador Semántico de Música",
+        "subtitle": "Explorador de Ontología Musical",
+        "description": "Descubre artistas, álbumes, canciones, instrumentos y géneros mediante búsqueda inteligente"
+    },
+    "header": {
+        "status": {
+            "connected": "Conectado",
+            "disconnected": "Desconectado",
+            "backendWarning": "Asegúrate de que el servidor backend esté corriendo"
+        }
+    },
+    "search": {
+        "placeholder": "Busca artistas, álbumes, canciones...",
+        "button": "Buscar",
+        "searching": "Buscando...",
+        "mode": {
+            "label": "Modo:",
+            "offline": "Sin conexión",
+            "online": "En línea",
+            "offlineTooltip": "Búsqueda en ontología local y datos descargados",
+            "onlineTooltip": "Búsqueda en vivo en DBpedia"
+        },
+        "filter": {
+            "all": "Todos",
+            "artist": "Artistas",
+            "album": "Álbumes",
+            "song": "Canciones",
+            "instrument": "Instrumentos",
+            "genre": "Géneros"
+        }
+    },
+    "results": {
+        "noResults": "No se encontraron resultados",
+        "noSearch": "Ingresa un término de búsqueda para comenzar",
+        "searching": "Buscando resultados...",
+        "source": {
+            "local": "Ontología Local",
+            "dbpedia_downloaded": "Descargado de DBpedia",
+            "dbpedia_live": "DBpedia en Vivo"
+        },
+        "viewInDBpedia": "Ver en DBpedia"
+    },
+    "entity": {
+        "artist": "Artista",
+        "album": "Álbum",
+        "song": "Canción",
+        "instrument": "Instrumento",
+        "genre": "Género"
+    },
+    "properties": {
+        "description": "Descripción",
+        "nationality": "Nacionalidad",
+        "birthYear": "Nacimiento",
+        "activeYears": "Años activo",
+        "trajectory": "Trayectoria",
+        "discography": "Discografía",
+        "awards": "Premios",
+        "genre": "Género",
+        "releaseYear": "Año de lanzamiento",
+        "duration": "Duración",
+        "language": "Idioma",
+        "composers": "Compositores",
+        "lyricist": "Letrista",
+        "lyrics": "Letra",
+        "instruments": "Instrumentos",
+        "type": "Tipo"
+    },
+    "language": {
+        "label": "Idioma",
+        "en": "Inglés",
+        "es": "Español",
+        "fr": "Francés",
+        "de": "Alemán"
+    },
+    "errors": {
+        "emptySearch": "Por favor ingresa un término de búsqueda",
+        "noResultsFor": "No se encontraron resultados para \"{{query}}\" en la categoría {{filter}} (modo: {{mode}})",
+        "apiConnection": "Error al conectar con la API. Verifica que el servidor backend esté en ejecución."
+    }
+}

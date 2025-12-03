@@ -30,29 +30,35 @@ ontology_service = OntologyService(ontology_path)
 @router.get("/search")
 def search(
     q: str = Query(..., min_length=1),
-    mode: SearchMode = Query(SearchMode.OFFLINE, description="Modo de búsqueda: offline, online, o hybrid")
+    mode: SearchMode = Query(SearchMode.OFFLINE, description="Modo de búsqueda: offline u online"),
+    lang: str = Query("en", description="Idioma para búsquedas DBpedia (en, es, fr, de)")
 ) -> ApiResponse:
     """
-    Búsqueda general en toda la ontología con soporte para múltiples modos
+    Búsqueda general en toda la ontología con soporte para múltiples modos y idiomas
     
     Query Parameters:
         q: Término de búsqueda (requerido)
-        mode: Modo de búsqueda (offline=local, online=DBpedia, hybrid=ambos)
+        mode: Modo de búsqueda (offline=local+descargado, online=DBpedia en vivo)
+        lang: Idioma para consultas DBpedia (solo modo online)
     """
     try:
-        results = ontology_service.search_with_mode(q, mode.value)
+        results = ontology_service.search_with_mode(q, mode.value, lang)
         
         # Contar fuentes
-        sources = {"local": 0, "dbpedia": 0}
+        sources = {"local": 0, "dbpedia_downloaded": 0, "dbpedia_live": 0}
         for result in results:
-            source = result.get("source", "local")
+            # El source ahora puede venir en result directamente o en result['source']
+            if isinstance(result, dict):
+                source = result.get("source", "local")
+            else:
+                source = getattr(result, "source", "local")
             sources[source] = sources.get(source, 0) + 1
         
         message = f"Se encontraron {len(results)} resultados"
-        if mode == SearchMode.HYBRID:
-            message += f" ({sources['local']} locales, {sources['dbpedia']} de DBpedia)"
+        if mode == SearchMode.OFFLINE:
+            message += f" ({sources['local']} locales, {sources['dbpedia_downloaded']} descargados)"
         elif mode == SearchMode.ONLINE:
-            message += " de DBpedia"
+            message += f" de DBpedia ({lang})"
         
         return ApiResponse(
             success=True,

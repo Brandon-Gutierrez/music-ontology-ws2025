@@ -1,5 +1,7 @@
 import React from 'react';
 import { Music } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { LanguageSelector } from './LanguageSelector';
 import styles from '../styles/Header.module.css';
 
 interface HeaderProps {
@@ -7,22 +9,25 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ apiStatus }) => {
+  const { t } = useTranslation();
+
   return (
     <header className={styles.header}>
       <div className={styles['header-logo']}>
         <Music size={32} />
+        <LanguageSelector />
       </div>
-      <h1 className={styles['header-title']}>Buscador Semántico de Música</h1>
+      <h1 className={styles['header-title']}>{t('app.title')}</h1>
       <p className={styles['header-subtitle']}>
-        Explora ontologías musicales con búsqueda semántica
+        {t('app.subtitle')}
       </p>
       <div className={styles['header-divider']}></div>
       <p className={styles['header-description']}>
-        Descubre artistas, álbumes, canciones, instrumentos y géneros mediante búsqueda inteligente
+        {t('app.description')}
       </p>
       {apiStatus !== undefined && (
         <p className={styles['status-text']} data-status={apiStatus ? 'connected' : 'disconnected'}>
-          {apiStatus ? '✓ API conectada (http://127.0.0.1:8000)' : '✗ API desconectada - Asegúrate de que el servidor backend esté corriendo'}
+          {apiStatus ? `✓ ${t('header.status.connected')} (http://127.0.0.1:8000)` : `✗ ${t('header.status.disconnected')} - ${t('header.status.backendWarning')}`}
         </p>
       )}
     </header>

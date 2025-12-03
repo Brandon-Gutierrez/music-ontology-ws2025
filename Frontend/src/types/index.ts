@@ -1,7 +1,8 @@
 // Tipos para la ontología de música
 
-export type SearchMode = 'offline' | 'online' | 'hybrid';
-export type DataSource = 'local' | 'dbpedia';
+export type SearchMode = 'offline' | 'online';
+export type DataSource = 'local' | 'dbpedia_downloaded' | 'dbpedia_live';
+export type SupportedLanguage = 'en' | 'es' | 'fr' | 'de';
 
 export interface Artist {
   uri: string;
@@ -14,6 +15,7 @@ export interface Artist {
   trajectory?: string;
   discography?: string;
   awards?: string;
+  dbpediaUrl?: string;
 }
 
 export interface Album {
@@ -23,6 +25,7 @@ export interface Album {
   releaseYear?: number;
   genre?: string;
   songs?: Song[];
+  dbpediaUrl?: string;
 }
 
 export interface Song {
@@ -38,6 +41,7 @@ export interface Song {
   lyrics?: string;
   lyricist?: string;
   collaborators?: Artist[];
+  dbpediaUrl?: string;
 }
 
 export interface Instrument {

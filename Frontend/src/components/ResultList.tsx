@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import type { SearchResult } from '../types';
 import { ResultCard } from './ResultCard';
 import styles from '../styles/ResultCard.module.css';
@@ -16,8 +17,10 @@ export const ResultList: React.FC<ResultListProps> = ({
   error,
   hasSearched,
 }) => {
+  const { t } = useTranslation();
+
   if (isLoading) {
-    return <div className={styles.loading}>⏳ Buscando resultados...</div>;
+    return <div className={styles.loading}>⏳ {t('results.searching')}</div>;
   }
 
   if (error) {
@@ -32,7 +35,7 @@ export const ResultList: React.FC<ResultListProps> = ({
     return (
       <div className={styles['no-results']}>
         <div className={styles['no-results-icon']}>🎵</div>
-        <p>Ingresa una búsqueda para comenzar a explorar la ontología musical</p>
+        <p>{t('results.noSearch')}</p>
       </div>
     );
   }
@@ -41,7 +44,7 @@ export const ResultList: React.FC<ResultListProps> = ({
     return (
       <div className={styles['no-results']}>
         <div className={styles['no-results-icon']}>🔍</div>
-        <p>No se encontraron resultados. Intenta con otro término de búsqueda.</p>
+        <p>{t('results.noResults')}</p>
       </div>
     );
   }
