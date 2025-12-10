@@ -6,6 +6,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 from typing import List, Dict, Any, Optional
 import time
 from datetime import datetime, timedelta
+import re
 
 
 class DBpediaService:
@@ -120,7 +121,7 @@ class DBpediaService:
         
         try:
             self.sparql.setQuery(query)
-            self.sparql.setTimeout(10)  # Timeout de 10 segundos
+            self.sparql.setTimeout(30)  # Aumentado a 30 segundos para consultas complejas
             results = self.sparql.query().convert()
             
             # Guardar en caché
@@ -134,7 +135,7 @@ class DBpediaService:
     
     def query_artists(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
         """
-        Buscar artistas en DBpedia
+        Buscar artistas en DBpedia con múltiples estrategias incluyendo búsqueda por palabras clave
         
         Args:
             query: Término de búsqueda
@@ -143,45 +144,147 @@ class DBpediaService:
         Returns:
             Lista de artistas encontrados
         """
-        # Usar idioma configurado o inglés como fallback
+        # Primero intentar búsqueda directa
+        results = self._search_artists_direct(query, limit * 2)
+        
+        # Si no hay resultados, intentar búsqueda por palabras individuales
+        if not results and " " in query:
+            words = query.split()
+            for word in words:
+                if len(word) >= 3:  # Solo palabras de 3+ caracteres
+                    results.extend(self._search_artists_direct(word, limit))
+        
+        # Deduplicar y ordenar por relevancia
+        seen_uris = set()
+        unique_results = []
+        for artist in results:
+            uri = artist.get("uri", "")
+            if uri not in seen_uris:
+                seen_uris.add(uri)
+                unique_results.append(artist)
+        
+        # Ordenar: primero búsquedas exactas, luego por relevancia del nombre
+        sorted_results = sorted(
+            unique_results,
+            key=lambda a: (
+                query.lower() not in a.get("name", "").lower(),
+                len(a.get("name", "")) 
+            )
+        )
+        
+        return sorted_results[:limit]
+    
+    def _search_artists_direct(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """Búsqueda directa de artistas con múltiples estrategias"""
         lang = self.language if self.language else "en"
-        # Escapar caracteres especiales en la consulta SPARQL
-        safe_query = query.replace('"', '\\"')
+        safe_query = query.replace('"', '\\"').replace('\\', '\\\\')
+        
+        # Estrategia 1: Búsqueda específica en recursos musicales conocidos
         sparql_query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         
-        SELECT DISTINCT ?artist ?name ?abstract ?birthPlace ?genre ?birthYear ?activeYears
+        SELECT DISTINCT ?artist ?name ?abstract
         WHERE {{
-            {{
-                ?artist a dbo:MusicalArtist ;
-                        foaf:name ?name .
-            }} UNION {{
-                ?artist a dbo:Person ;
-                        foaf:name ?name ;
-                        dbo:associatedBand|dbo:associatedMusicalArtist ?band .
+            ?artist foaf:name ?name ;
+                    a ?type .
+            VALUES ?type {{ 
+                dbo:MusicalArtist 
+                dbo:Band 
+                dbo:Musician
             }}
-            FILTER(REGEX(?name, "{safe_query}", "i"))
+            
+            FILTER(
+                CONTAINS(LCASE(STR(?name)), LCASE("{safe_query}")) || 
+                REGEX(?name, ".*{safe_query}.*", "i")
+            )
             
             OPTIONAL {{ 
                 ?artist dbo:abstract ?abstract .
                 FILTER(LANG(?abstract) = "{lang}")
             }}
-            OPTIONAL {{ ?artist dbo:birthPlace ?birthPlace }}
-            OPTIONAL {{ ?artist dbo:genre ?genre }}
-            OPTIONAL {{ ?artist dbo:birthYear ?birthYear }}
-            OPTIONAL {{ ?artist dbo:activeYearsStartYear ?activeYears }}
         }}
         LIMIT {limit}
         """
         
-        results = self._execute_sparql(sparql_query)
-        return self._map_to_local_format(results, "artist")
+        try:
+            results = self._execute_sparql(sparql_query)
+            artists = self._map_to_local_format(results, "artist")
+            if artists:
+                return artists
+        except:
+            pass
+        
+        # Estrategia 2: Búsqueda sin restricción de tipo pero con propiedades musicales
+        try:
+            sparql_query_prop = f"""
+            PREFIX dbo: <http://dbpedia.org/ontology/>
+            PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+            
+            SELECT DISTINCT ?artist ?name ?abstract
+            WHERE {{
+                ?artist foaf:name ?name .
+                {{
+                    ?artist dbo:genre ?_ .
+                }} UNION {{
+                    ?artist dbo:associatedBand ?_ .
+                }} UNION {{
+                    ?artist dbo:associatedMusicalArtist ?_ .
+                }} UNION {{
+                    ?artist dbo:bandMember ?_ .
+                }}
+                
+                FILTER(
+                    CONTAINS(LCASE(STR(?name)), LCASE("{safe_query}")) || 
+                    REGEX(?name, ".*{safe_query}.*", "i")
+                )
+                
+                OPTIONAL {{ 
+                    ?artist dbo:abstract ?abstract .
+                    FILTER(LANG(?abstract) = "{lang}")
+                }}
+            }}
+            LIMIT {limit}
+            """
+            
+            results = self._execute_sparql(sparql_query_prop)
+            artists = self._map_to_local_format(results, "artist")
+            if artists:
+                return artists
+        except:
+            pass
+        
+        # Estrategia 3: Búsqueda muy amplia pero con timeout bajo
+        try:
+            sparql_query_broad = f"""
+            PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+            PREFIX dbo: <http://dbpedia.org/ontology/>
+            
+            SELECT DISTINCT ?artist ?name ?abstract
+            WHERE {{
+                ?artist foaf:name ?name ;
+                        dbo:abstract ?abstract .
+                
+                FILTER(
+                    CONTAINS(LCASE(STR(?name)), LCASE("{safe_query}")) && 
+                    LANG(?abstract) = "{lang}"
+                )
+            }}
+            LIMIT {limit}
+            """
+            
+            results = self._execute_sparql(sparql_query_broad, use_cache=False)
+            artists = self._map_to_local_format(results, "artist")
+            if artists:
+                return artists
+        except:
+            pass
+        
+        return []
     
     def query_albums(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
         """
-        Buscar álbumes en DBpedia
+        Buscar álbumes en DBpedia con múltiples estrategias
         
         Args:
             query: Término de búsqueda
@@ -194,6 +297,8 @@ class DBpediaService:
         lang = self.language if self.language else "en"
         # Escapar caracteres especiales en la consulta SPARQL
         safe_query = query.replace('"', '\\"')
+        
+        # Consulta mejorada que busca en múltiples tipos
         sparql_query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -206,10 +311,20 @@ class DBpediaService:
                        foaf:name ?name .
             }} UNION {{
                 ?album a dbo:MusicalWork ;
-                       foaf:name ?name ;
-                       dbo:recordLabel ?label .
+                       foaf:name ?name .
+            }} UNION {{
+                ?album a dbo:Single ;
+                       foaf:name ?name .
+            }} UNION {{
+                ?album a dbo:Compilation ;
+                       foaf:name ?name .
             }}
-            FILTER(REGEX(?name, "{safe_query}", "i"))
+            
+            FILTER(
+                CONTAINS(LCASE(STR(?name)), LCASE("{safe_query}")) || 
+                REGEX(?name, "{safe_query}", "i") ||
+                REGEX(?name, ".*{safe_query}.*", "i")
+            )
             
             OPTIONAL {{ 
                 ?album dbo:artist ?artist .
@@ -230,7 +345,7 @@ class DBpediaService:
     
     def query_songs(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
         """
-        Buscar canciones en DBpedia
+        Buscar canciones en DBpedia con múltiples estrategias
         
         Args:
             query: Término de búsqueda
@@ -243,6 +358,8 @@ class DBpediaService:
         lang = self.language if self.language else "en"
         # Escapar caracteres especiales en la consulta SPARQL
         safe_query = query.replace('"', '\\"')
+        
+        # Consulta mejorada que busca en múltiples tipos
         sparql_query = f"""
         PREFIX dbo: <http://dbpedia.org/ontology/>
         PREFIX foaf: <http://xmlns.com/foaf/0.1/>
@@ -259,8 +376,16 @@ class DBpediaService:
             }} UNION {{
                 ?song a dbo:MusicalWork ;
                       foaf:name ?name .
+            }} UNION {{
+                ?song a dbo:Composition ;
+                      foaf:name ?name .
             }}
-            FILTER(REGEX(?name, "{safe_query}", "i"))
+            
+            FILTER(
+                CONTAINS(LCASE(STR(?name)), LCASE("{safe_query}")) || 
+                REGEX(?name, "{safe_query}", "i") ||
+                REGEX(?name, ".*{safe_query}.*", "i")
+            )
             
             OPTIONAL {{ 
                 ?song dbo:musicalArtist ?artist .
@@ -283,9 +408,127 @@ class DBpediaService:
         results = self._execute_sparql(sparql_query)
         return self._map_to_local_format(results, "song")
     
+    def query_instruments(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """
+        Buscar instrumentos en DBpedia con múltiples estrategias
+        
+        Args:
+            query: Término de búsqueda
+            limit: Número máximo de resultados
+            
+        Returns:
+            Lista de instrumentos encontrados
+        """
+        # Usar idioma configurado o inglés como fallback
+        lang = self.language if self.language else "en"
+        # Escapar caracteres especiales en la consulta SPARQL
+        safe_query = query.replace('"', '\\"')
+        
+        # Consulta mejorada para instrumentos
+        sparql_query = f"""
+        PREFIX dbo: <http://dbpedia.org/ontology/>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        
+        SELECT DISTINCT ?instrument ?name ?abstract ?type ?classification
+        WHERE {{
+            {{
+                ?instrument a dbo:Instrument ;
+                            foaf:name ?name .
+            }} UNION {{
+                ?instrument a dbo:MusicalInstrument ;
+                            foaf:name ?name .
+            }} UNION {{
+                ?instrument a dbo:StringInstrument ;
+                            foaf:name ?name .
+            }} UNION {{
+                ?instrument a dbo:KeyboardInstrument ;
+                            foaf:name ?name .
+            }} UNION {{
+                ?instrument a dbo:PercussionInstrument ;
+                            foaf:name ?name .
+            }} UNION {{
+                ?instrument a dbo:WindInstrument ;
+                            foaf:name ?name .
+            }}
+            
+            FILTER(
+                CONTAINS(LCASE(STR(?name)), LCASE("{safe_query}")) || 
+                REGEX(?name, "{safe_query}", "i") ||
+                REGEX(?name, ".*{safe_query}.*", "i")
+            )
+            
+            OPTIONAL {{ 
+                ?instrument dbo:abstract ?abstract .
+                FILTER(LANG(?abstract) = "{lang}")
+            }}
+            OPTIONAL {{ ?instrument dbo:instrumentType ?type }}
+            OPTIONAL {{ ?instrument dbo:classification ?classification }}
+        }}
+        LIMIT {limit}
+        """
+        
+        results = self._execute_sparql(sparql_query)
+        return self._map_to_local_format(results, "instrument")
+    
+    def query_genres(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+        """
+        Buscar géneros en DBpedia con múltiples estrategias
+        
+        Args:
+            query: Término de búsqueda
+            limit: Número máximo de resultados
+            
+        Returns:
+            Lista de géneros encontrados
+        """
+        # Usar idioma configurado o inglés como fallback
+        lang = self.language if self.language else "en"
+        # Escapar caracteres especiales en la consulta SPARQL
+        safe_query = query.replace('"', '\\"')
+        
+        # Consulta mejorada para géneros
+        sparql_query = f"""
+        PREFIX dbo: <http://dbpedia.org/ontology/>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        
+        SELECT DISTINCT ?genre ?name ?abstract ?parent ?originated
+        WHERE {{
+            {{
+                ?genre a dbo:Genre ;
+                       foaf:name ?name .
+            }} UNION {{
+                ?genre a dbo:MusicGenre ;
+                       foaf:name ?name .
+            }} UNION {{
+                ?genre rdfs:label ?name .
+                ?genre rdfs:subClassOf ?parent .
+                ?parent rdfs:label "Genre"@en .
+            }}
+            
+            FILTER(
+                CONTAINS(LCASE(STR(?name)), LCASE("{safe_query}")) || 
+                REGEX(?name, "{safe_query}", "i") ||
+                REGEX(?name, ".*{safe_query}.*", "i")
+            )
+            
+            OPTIONAL {{ 
+                ?genre dbo:abstract ?abstract .
+                FILTER(LANG(?abstract) = "{lang}")
+            }}
+            OPTIONAL {{ ?genre dbo:parentGenre ?parent }}
+            OPTIONAL {{ ?genre dbo:dateOfOrigin ?originated }}
+        }}
+        LIMIT {limit}
+        """
+        
+        results = self._execute_sparql(sparql_query)
+        return self._map_to_local_format(results, "genre")
     def query_general(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
         """
-        Búsqueda general en DBpedia (artistas, álbumes y canciones)
+        Búsqueda general en DBpedia (artistas, álbumes, canciones, instrumentos y géneros)
+        Utiliza una estrategia de múltiples búsquedas para capturar más resultados
         
         Args:
             query: Término de búsqueda
@@ -297,8 +540,12 @@ class DBpediaService:
         results = []
         seen_uris = set()  # Para evitar duplicados
         
+        # Intentar búsqueda normal primero
+        # Distribuir el límite entre 5 tipos de búsqueda
+        limit_per_type = max(limit // 5, 3)
+        
         # Buscar artistas
-        artists = self.query_artists(query, limit // 3)
+        artists = self.query_artists(query, limit_per_type)
         for artist in artists:
             uri = artist.get("uri", "")
             if uri and uri not in seen_uris:
@@ -306,7 +553,7 @@ class DBpediaService:
                 seen_uris.add(uri)
         
         # Buscar álbumes
-        albums = self.query_albums(query, limit // 3)
+        albums = self.query_albums(query, limit_per_type)
         for album in albums:
             uri = album.get("uri", "")
             if uri and uri not in seen_uris:
@@ -314,14 +561,117 @@ class DBpediaService:
                 seen_uris.add(uri)
         
         # Buscar canciones
-        songs = self.query_songs(query, limit // 3)
+        songs = self.query_songs(query, limit_per_type)
         for song in songs:
             uri = song.get("uri", "")
             if uri and uri not in seen_uris:
                 results.append({"type": "song", "data": song, "source": "dbpedia_live"})
                 seen_uris.add(uri)
         
+        # Buscar instrumentos
+        instruments = self.query_instruments(query, limit_per_type)
+        for instrument in instruments:
+            uri = instrument.get("uri", "")
+            if uri and uri not in seen_uris:
+                results.append({"type": "instrument", "data": instrument, "source": "dbpedia_live"})
+                seen_uris.add(uri)
+        
+        # Buscar géneros
+        genres = self.query_genres(query, limit_per_type)
+        for genre in genres:
+            uri = genre.get("uri", "")
+            if uri and uri not in seen_uris:
+                results.append({"type": "genre", "data": genre, "source": "dbpedia_live"})
+                seen_uris.add(uri)
+        
+        # Si no hay resultados, intentar búsqueda más amplia
+        if not results:
+            results = self._query_broad_search(query, limit)
+        
         return results
+    
+    def _query_broad_search(self, query: str, limit: int = 20) -> List[Dict[str, Any]]:
+        """
+        Búsqueda muy amplia para capturar resultados que podrían haber sido perdidos
+        Busca en labels, aliases y abstracts de todas las entidades musicales
+        
+        Args:
+            query: Término de búsqueda
+            limit: Número máximo de resultados
+            
+        Returns:
+            Lista combinada de resultados
+        """
+        safe_query = query.replace('"', '\\"')
+        lang = self.language if self.language else "en"
+        
+        sparql_query = f"""
+        PREFIX dbo: <http://dbpedia.org/ontology/>
+        PREFIX foaf: <http://xmlns.com/foaf/0.1/>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX dct: <http://purl.org/dc/terms/>
+        
+        SELECT DISTINCT ?entity ?name ?abstract ?type
+        WHERE {{
+            ?entity foaf:name ?name .
+            
+            FILTER(CONTAINS(LCASE(STR(?name)), LCASE("{safe_query}")) || REGEX(?name, "{safe_query}", "i"))
+            
+            {{
+                ?entity a dbo:MusicalArtist .
+                BIND("artist" as ?type)
+            }} UNION {{
+                ?entity a dbo:Band .
+                BIND("artist" as ?type)
+            }} UNION {{
+                ?entity a dbo:Musician .
+                BIND("artist" as ?type)
+            }} UNION {{
+                ?entity a dbo:Album .
+                BIND("album" as ?type)
+            }} UNION {{
+                ?entity a dbo:MusicalWork .
+                BIND("song" as ?type)
+            }} UNION {{
+                ?entity a dbo:Song .
+                BIND("song" as ?type)
+            }} UNION {{
+                ?entity a dbo:Single .
+                BIND("album" as ?type)
+            }} UNION {{
+                ?entity a dbo:Instrument .
+                BIND("instrument" as ?type)
+            }} UNION {{
+                ?entity a dbo:MusicalInstrument .
+                BIND("instrument" as ?type)
+            }} UNION {{
+                ?entity a dbo:Genre .
+                BIND("genre" as ?type)
+            }} UNION {{
+                ?entity a dbo:MusicGenre .
+                BIND("genre" as ?type)
+            }}
+            
+            OPTIONAL {{ 
+                ?entity dbo:abstract ?abstract .
+                FILTER(LANG(?abstract) = "{lang}")
+            }}
+        }}
+        LIMIT {limit}
+        """
+        
+        results = self._execute_sparql(sparql_query)
+        output = []
+        for binding in results.get("results", {}).get("bindings", []):
+            entity_dict = self._binding_to_dict(binding, binding.get("type", {}).get("value", "artist"))
+            if entity_dict:
+                output.append({
+                    "type": binding.get("type", {}).get("value", "artist"),
+                    "data": entity_dict,
+                    "source": "dbpedia_live"
+                })
+        
+        return output
     
     def get_artist_details(self, artist_uri: str) -> Optional[Dict[str, Any]]:
         """
